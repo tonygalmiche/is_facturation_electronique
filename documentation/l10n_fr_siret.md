@@ -66,3 +66,16 @@ Aucun menu ajouté. Les champs sont intégrés directement dans les formulaires 
 | `siren` | Char | SIREN de la société (stocké, modifiable, lié à `partner_id.siren`) |
 | `nic` | Char | NIC de la société (stocké, modifiable, lié à `partner_id.nic`) |
 | `siret` | Char | SIRET de la société (lecture seule, calculé depuis SIREN + NIC) |
+
+---
+
+## Installation
+
+Dépôt `OCA/l10n-france`. Ne pas oublier la dépendance [base_view_inheritance_extension.md](./base_view_inheritance_extension.md) (autre dépôt, `OCA/server-tools`).
+
+```bash
+cd /tmp
+git clone -b 18.0 --depth 1 https://github.com/OCA/l10n-france.git
+mv l10n-france/l10n_fr_siret /media/sf_dev_odoo/18.0/facturation-electronique/
+rm -rf l10n-france
+```

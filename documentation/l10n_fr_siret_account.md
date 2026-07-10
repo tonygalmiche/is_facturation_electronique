@@ -42,3 +42,19 @@ invisible: (not is_company and not parent_is_company) or not is_france_country
 ```
 
 Cela évite que le champ SIRET apparaisse sur des partenaires non-français ou des contacts individuels dans le contexte comptable.
+
+---
+
+## Installation
+
+Module `auto_install` : il s'active tout seul dès que `l10n_fr_siret` et `l10n_fr_account` (natif Odoo, cf. [l10n_fr_account.md](./l10n_fr_account.md)) sont tous les deux présents — pas de dépendance explicite à ajouter dans un autre module, il suffit de récupérer le dossier.
+
+Vit dans le même dépôt `OCA/l10n-france` que `l10n_fr_siret` : mêmes commandes.
+
+```bash
+cd /tmp
+git clone -b 18.0 --depth 1 https://github.com/OCA/l10n-france.git
+mv l10n-france/l10n_fr_siret_account /media/sf_dev_odoo/18.0/facturation-electronique/
+mv l10n-france/l10n_fr_siret /media/sf_dev_odoo/18.0/facturation-electronique/
+rm -rf l10n-france
+```

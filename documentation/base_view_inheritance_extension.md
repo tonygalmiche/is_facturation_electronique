@@ -77,6 +77,17 @@ Attributs disponibles :
 
 ---
 
+## Installation
+
+Ce module est disponible dans le dépôt OCA `server-tools` sur la branche `18.0`. Pour l’utiliser dans ce projet :
+
+```bash
+cd /tmp
+git clone -b 18.0 --depth 1 https://github.com/OCA/server-tools.git
+mv server-tools/base_view_inheritance_extension /media/sf_dev_odoo/18.0/facturation-electronique/
+rm -rf server-tools
+```
+
 ## Résumé
 
 | Opération | Cas d'usage typique |

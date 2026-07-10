@@ -7,6 +7,17 @@ Ce projet couvre **deux architectures distinctes** pour la facturation électron
 
 Les modules sans lien (texte simple) sont des modules natifs d'Odoo non documentés séparément dans ce dossier (pas de spécificité liée à la réforme).
 
+## Installation rapide
+
+Le script [`installation-modules-oca.sh`](./installation-modules-oca.sh) automatise le téléchargement et la mise en place de tous les modules OCA/Akretion de la stack communautaire (section 1 ci-dessous) :
+
+```bash
+./installation-modules-oca.sh [dossier_destination]
+# par défaut : /media/sf_dev_odoo/18.0/facturation-electronique
+```
+
+Ne gère pas les libs Python (`factur-x`, `pyfrctc`) ni Saxon Server — voir [lib-factur-x.md](./lib-factur-x.md), [lib-pyfrctc.md](./lib-pyfrctc.md), [saxon-server.md](./saxon-server.md).
+
 ---
 
 ## 1. Stack communautaire Akretion/OCA

@@ -32,6 +32,30 @@ pip install --break-system-packages pyfrctc==0.13
 pip3 show pyfrctc
 ```
 
+## Piège : Odoo peut voir une autre version que celle installée en root
+
+Même piège que pour [factur-x](./lib-factur-x.md#piège--odoo-peut-voir-une-autre-version-que-celle-installée-en-root) : Odoo tourne sous l'utilisateur `odoo`, pas `root`. Si un `pip install --user` a été fait par le passé sous ce compte, `~/.local/lib/python3.X/site-packages/` (prioritaire dans `sys.path`) masque la version system-wide installée en root.
+
+Constaté en pratique sur `bookworm` :
+
+```bash
+# root voit la bonne version :
+pip3 show pyfrctc | grep -E "Version|Location"
+# Version: 0.13
+# Location: /usr/local/lib/python3.11/dist-packages
+
+# odoo voit une vieille version dev :
+su - odoo -c "pip3 show pyfrctc" | grep -E "Version|Location"
+# Version: 0.8.dev2+gef287c7f0
+# Location: /home/odoo/.local/lib/python3.11/site-packages
+```
+
+Correction — désinstaller **en tant qu'utilisateur `odoo`**, pas en root, pour cibler le bon `site-packages` :
+
+```bash
+su - odoo -c "pip3 uninstall --break-system-packages -y pyfrctc"
+```
+
 ## Sources
 
 - [akretion.md](./akretion.md) — contexte de la réforme et versions utilisées

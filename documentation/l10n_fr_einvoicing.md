@@ -3,7 +3,8 @@
 **Auteur :** Akretion France  
 **Version :** 18.0.1.0.1  
 **Licence :** AGPL-3  
-**Dépendances :** `l10n_fr_siret_account`, `pyfrctc >= 0.7` (lib Python)
+**Dépôt :** https://github.com/akretion/fr-einvoicing (branche 18.0)  
+**Dépendances :** `l10n_fr_siret_account`, `l10n_fr_account_invoice_en16931`, `pyfrctc >= 0.7` (lib Python)
 
 ---
 
@@ -91,3 +92,23 @@ Des accès rapides sont également ajoutés dans le tableau de bord des journaux
 | `fr.einvoicing.log` | Historique des synchronisations répertoire |
 | `fr.einvoicing.token` | Stockage sécurisé des tokens OAuth2 par société |
 | `fr.directory.line` | Lignes du répertoire national (SIREN, SIRET, code routage) |
+
+---
+
+## Installation
+
+Ce module vit dans le même dépôt `akretion/fr-einvoicing` que [l10n_fr_account_invoice_en16931](./l10n_fr_account_invoice_en16931.md) et [account_invoice_en16931](./account_invoice_en16931.md). Même principe que pour les autres modules déjà documentés : clone temporaire dans `/tmp`, on ne garde que les dossiers utiles.
+
+```bash
+cd /tmp
+git clone -b 18.0 --depth 1 https://github.com/akretion/fr-einvoicing.git
+mv fr-einvoicing/l10n_fr_einvoicing /media/sf_dev_odoo/18.0/facturation-electronique/
+rm -rf fr-einvoicing
+```
+
+Dépendances à installer au préalable :
+
+- Module Odoo [l10n_fr_siret_account.md](./l10n_fr_siret_account.md) (et sa dépendance [l10n_fr_siret.md](./l10n_fr_siret.md))
+- Module Odoo [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation) (même dépôt, à cloner en même temps que ci-dessus)
+- Lib Python `pyfrctc>=0.7` (cf. [lib-pyfrctc.md](./lib-pyfrctc.md))
+- [Saxon Server](./saxon-server.md), appelé par `pyfrctc` pour la validation Schematron des fichiers CDAR

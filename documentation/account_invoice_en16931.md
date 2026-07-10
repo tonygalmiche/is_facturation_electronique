@@ -55,6 +55,10 @@ C'est le code derrière le bouton **"Check config for EN16931 invoicing"** (cf. 
 
 Champ `no_vat_taxes` (calculé) : vrai si la société n'a aucune taxe de type `VAT` — utile pour les entités non assujetties (auto-entrepreneurs, associations), qui doivent alors renseigner `no_vat_taxes_vatex_id` (motif d'exonération global de la société).
 
+## Installation
+
+Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=6.1` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
+
 ## Sources
 
 - Module : https://github.com/akretion/fr-einvoicing/tree/18.0/account_invoice_en16931

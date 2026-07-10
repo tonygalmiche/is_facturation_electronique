@@ -43,6 +43,20 @@ Ajoute des mentions obligatoires en droit français sur les conditions de paieme
 - **Pas d'escompte** pour paiement anticipé (`BT-21` = `AAB`)
 - Mention `ADN` = `B2G` si le client est une entité publique
 
+## Installation
+
+Ce module et `account_invoice_en16931` (sa dépendance directe) vivent dans le **même dépôt** `akretion/fr-einvoicing`. Même principe que pour les autres modules déjà documentés : clone temporaire dans `/tmp`, on ne garde que les dossiers utiles.
+
+```bash
+cd /tmp
+git clone -b 18.0 --depth 1 https://github.com/akretion/fr-einvoicing.git
+mv fr-einvoicing/l10n_fr_account_invoice_en16931 /media/sf_dev_odoo/18.0/facturation-electronique/
+mv fr-einvoicing/account_invoice_en16931 /media/sf_dev_odoo/18.0/facturation-electronique/
+rm -rf fr-einvoicing
+```
+
+Ne pas oublier la dépendance Python `factur-x>=6.1` requise par `account_invoice_en16931` (cf. [lib-factur-x.md](./lib-factur-x.md)) — sans elle, l'installation du module échoue.
+
 ## Chaîne de dépendances complète
 
 ```

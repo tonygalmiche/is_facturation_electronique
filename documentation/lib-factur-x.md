@@ -41,7 +41,27 @@ pip3 show factur-x | grep Location   # emplacement du paquet
 dpkg -l | grep python3-lxml          # présent uniquement si installé via apt
 ```
 
+## Piège : Odoo peut voir une autre version que celle installée en root
 
+`pip3 show factur-x` en root peut afficher la bonne version alors qu'**Odoo continue d'utiliser une ancienne version**. Cause : Odoo tourne sous l'utilisateur `odoo`, pas `root`. Si un `pip install --user` a été fait par le passé sous cet utilisateur, une copie existe dans `~/.local/lib/python3.X/site-packages/`, et **ce dossier est prioritaire dans `sys.path`** sur `/usr/local/lib/python3.X/dist-packages/` (où atterrit l'install system-wide en root). Résultat : Odoo importe la vieille copie utilisateur et ignore la mise à jour faite en root.
+
+Symptôme observé : erreur `External dependency version mismatch: factur-x>=6.1 (installed: 4.4.dev2+...)` au moment d'installer/mettre à niveau un module, alors que `pip3 show factur-x` (en root) annonce bien 6.1.
+
+Diagnostic — comparer la version vue par chaque utilisateur :
+
+```bash
+# En root :
+python3 -c "import facturx; print(facturx.__file__)"
+
+# En tant qu'utilisateur odoo (celui qui exécute réellement odoo-bin) :
+su - odoo -c "python3 -c 'import facturx; print(facturx.__file__)'"
+su - odoo -c "pip3 show factur-x"   # affiche la version vue par cet utilisateur
+
+# Chercher toutes les copies présentes sur le système :
+find / -iname 'facturx' -maxdepth 8 -type d 2>/dev/null
+```
+
+Si une copie existe dans `/home/odoo/.local/lib/python3.X/site-packages/facturx`, c'est elle qui est utilisée par Odoo, pas celle de `/usr/local/`. Correction : la supprimer (`pip3 uninstall --break-system-packages -y factur-x` **exécuté en tant qu'utilisateur `odoo`**, pas en root, pour cibler le bon emplacement) afin qu'Odoo retombe sur la version system-wide à jour.
 
 ## Sources
 
