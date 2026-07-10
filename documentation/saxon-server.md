@@ -2,7 +2,12 @@ Lien : https://github.com/willemvlh/saxon-server
 
 # À quoi sert Saxon Server ?
 
-Saxon Server est un petit webservice open source qui expose la librairie Java **Saxonica** (implémentation de référence de XSLT/XQuery) via une API HTTP. On lui envoie un fichier XML et une feuille de style XSL, il renvoie le résultat de la transformation.
+Saxon Server est un petit webservice open source qui expose la librairie Java **Saxon** (moteur XSLT/XQuery de l'éditeur **Saxonica**, fondé par Michael Kay, l'un des principaux rédacteurs des specs W3C XSLT 2.0/3.0 — implémentation de référence de ces normes) via une API HTTP. On lui envoie un fichier XML et une feuille de style XSL, il renvoie le résultat de la transformation.
+
+Saxon existe en plusieurs éditions :
+
+- **Saxon-HE** (Home Edition) — gratuite et open source, supporte déjà XSLT 2.0/3.0 + Schematron. C'est celle utilisée ici, par `saxonche` comme par Saxon Server.
+- **Saxon-PE/EE** (Professional/Enterprise) — payantes, fonctionnalités avancées non nécessaires pour ce cas d'usage.
 
 Dans le cadre de la réforme de la facturation électronique, ce serveur est utilisé pour la **validation Schematron** des fichiers Factur-X / UBL générés par Odoo :
 
@@ -11,6 +16,19 @@ Dans le cadre de la réforme de la facturation électronique, ce serveur est uti
 - Pour contourner ce problème, la lib `factur-x` ne dépend plus de `saxonche` : elle envoie désormais une requête HTTP `POST /transform` (fichier XML + schematron XSL) à un serveur Saxon Server externe, qui répond au format SVRL (Schematron Validation Report Language).
 
 En résumé : Saxon Server est un composant **externe et obligatoire** (au même titre qu'une base de données) pour pouvoir valider la conformité Schematron des factures Factur-X/UBL générées par Odoo Community, avant leur dépôt sur un PDP/Chorus Pro.
+
+## Un seul serveur, appelé par deux libs différentes
+
+`factur-x` ([lib-factur-x.md](./lib-factur-x.md)) et `pyfrctc` ([lib-pyfrctc.md](./lib-pyfrctc.md)) ont toutes les deux abandonné `saxonche` pour le même bug GraalVM et appellent donc toutes les deux Saxon Server en HTTP — mais elles ne valident pas le même document, et pas au même moment du cycle de vie d'une facture :
+
+- **`factur-x`** valide la **facture elle-même** (XML Factur-X/UBL) contre le schématron Factur-X + celui de la réforme française, à la génération/validation de la facture (~2 appels par facture).
+- **`pyfrctc`** valide les fichiers **CDAR** (*Cross Domain Acknowledgement and Response*), des documents de statut de cycle de vie distincts de la facture (approuvée, rejetée, en litige, payée... statuts AFNOR 200-220, cf. [l10n_fr_einvoicing.md](./l10n_fr_einvoicing.md)) — un CDAR est généré à **chaque événement de cycle de vie**, pas seulement à la création de la facture.
+
+Les deux libs sont deux clients Python différents qui appellent le **même** service HTTP partagé (`http://localhost:5000/transform`), pour deux types de documents différents. 
+
+## Existe-t-il une alternative plus simple à Saxon Server ?
+
+Pas vraiment : Saxon (Home Edition, gratuit) est en pratique la **seule** implémentation libre complète de XSLT2/3 + Schematron — `lxml`/libxml2 ne supportent que XSLT1, insuffisant pour ces schématrons. `saxonche` (bindings Python du même moteur Saxon, en local sans serveur) serait plus simple côté architecture, mais c'est justement ce qui a été abandonné à cause du bug GraalVM en contexte cron/worker (cf. plus haut). Saxon Server n'est donc pas un choix parmi d'autres outils concurrents, mais un contournement de ce bug, avec le même moteur derrière. Le seul vrai levier de simplification serait d'isoler l'exécution de `saxonche` (ex. subprocess dédié par validation) pour éviter le bug sans passer par un serveur HTTP séparé — non testé ni recommandé ici, ce n'est pas l'approche retenue par les auteurs des libs.
 
 ## Point d'attention : le fichier CodeDB
 
@@ -214,10 +232,10 @@ chown saxon-server:saxon-server FACTUR-X_EXTENDED_codedb.xml
 
 ## Configuration côté Odoo
 
-Une fois le serveur testé et accessible, renseigner sur la page de configuration de la compta (module `l10n_fr_einvoicing` / `account_invoice_en16931`) :
+Une fois le serveur testé et accessible, renseigner sur la page de configuration de la compta (exposé par le module [account_invoice_en16931](./account_invoice_en16931.md), `wizards/res_config_settings.py`) :
 
-- l'URL du serveur Saxon (ex : `http://localhost:5000`) ;
-- le paramètre `saxon_server_codedb_dir` : le chemin local vers le répertoire contenant `FACTUR-X_EXTENDED_codedb.xml` (`--insecure` obligatoire côté Saxon Server).
+- `en16931.saxon_server_url` — l'URL du serveur Saxon (ex : `http://localhost:5000`) ;
+- `en16931.saxon_server_codedb_dir` — le chemin local vers le répertoire contenant `FACTUR-X_EXTENDED_codedb.xml` (`--insecure` obligatoire côté Saxon Server).
 
 ## Test depuis Odoo
 

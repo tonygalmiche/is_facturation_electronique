@@ -18,6 +18,10 @@ InfoSaône - Module Odoo 18 pour Facturation électronique
         'l10n_fr_siret',                   # Dépendance OCA Akretion
         'l10n_fr_siret_account',           # Dépendance OCA Akretion
         'base_view_inheritance_extension', # Dépendance OCA Akretion
+
+
+        'base_unece',
+        'account_tax_unece',
     ],
     'data' : [
         'views/menu.xml',
