@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account_invoice_en16931.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <setting id="saxon_server_codedb_dir" position="after">
+                <setting
+                    id="is_force_saxon_validation"
+                    help="Si activé, la facture est rejetée si le serveur Saxon est injoignable ou si le fichier XML Factur-X échoue à la validation schematron. Si désactivé (par défaut), un échec ou une indisponibilité du serveur Saxon est seulement enregistré dans les logs et ne bloque pas l'envoi de la facture."
+                >
+                    <field name="is_force_saxon_validation" />
+                </setting>
+            </setting>
+        </field>
+    </record>
+</odoo>
