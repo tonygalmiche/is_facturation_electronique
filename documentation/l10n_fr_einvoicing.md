@@ -112,3 +112,6 @@ Dépendances à installer au préalable :
 - Module Odoo [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation) (même dépôt, à cloner en même temps que ci-dessus)
 - Lib Python `pyfrctc>=0.7` (cf. [lib-pyfrctc.md](./lib-pyfrctc.md))
 - [Saxon Server](./saxon-server.md), appelé par `pyfrctc` pour la validation Schematron des fichiers CDAR
+- [base_business_document_import.md](./base_business_document_import.md), requis pour le matching partenaire à l'import des factures fournisseur Super PDP (`_match_partner_from_event`)
+
+**Import des factures fournisseur** : `l10n_fr_einvoicing` seul ne crée **pas** les factures fournisseur reçues de la plateforme (méthode `_import_supplier_invoice()` volontairement vide, cf. [l10n_fr_einvoicing_import.md](./l10n_fr_einvoicing_import.md)) — installer en plus [l10n_fr_einvoicing_import.md](./l10n_fr_einvoicing_import.md) (et sa dépendance [account_invoice_import.md](./account_invoice_import.md)) pour que ça fonctionne. Détail du symptôme si oublié : [import-depuis-super-pdp.md](./import-depuis-super-pdp.md).

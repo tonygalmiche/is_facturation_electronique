@@ -237,6 +237,25 @@ Une fois le serveur testé et accessible, renseigner sur la page de configuratio
 - `en16931.saxon_server_url` — l'URL du serveur Saxon (ex : `http://localhost:5000`) ;
 - `en16931.saxon_server_codedb_dir` — le chemin local vers le répertoire contenant `FACTUR-X_EXTENDED_codedb.xml` (`--insecure` obligatoire côté Saxon Server).
 
+## Incident rencontré : "Read timed out" sur le schématron `base`
+
+Erreur observée à la validation d'une facture :
+
+```
+Failed to validate the factur-x XML file against the Saxon schematron server.
+Error: Check 'base' failed in the POST request to saxon server on
+http://localhost:5000/transform: HTTPConnectionPool(host='localhost', port=5000):
+Read timed out. (read timeout=5)
+```
+
+**Le serveur Saxon n'était pas en panne** (actif, répond en <50ms sur un test basique, et le schématron `fr-ctc` passait en 2,4s). Cause : `en16931.saxon_server_codedb_dir` n'était pas renseigné dans `ir_config_parameter` → la lib `factur-x` va chercher `FACTUR-X_EXTENDED_codedb.xml` via l'URL publique GitHub à chaque appel du schématron `base` (log `"Replacing codedb XML files by public URLs..."`), au lieu du fichier local déjà présent dans `/opt/saxon-server`. Ce chemin réseau, additionné à la recompilation du XSL (~2s), a dépassé le timeout **codé en dur à 5s** côté client Python (`facturx.py:167`, `SAXON_SERVER_TIMEOUT = 5`, non configurable) — probablement juste après un redémarrage du service (JVM "à froid").
+
+**Action à faire** : Comptabilité > Configuration, bloc EN16931 :
+- `Specific Saxon Server URL` → `http://localhost:5000` (si vide)
+- `Saxon Server CodeDB dir` → `/opt/saxon-server`
+
+Ceci fait passer le CodeDB par le filesystem local (déjà en place, cf. section CodeDB plus haut) au lieu du réseau, ce qui élimine la dépendance à GitHub et la marge fragile par rapport au timeout de 5s.
+
 ## Test depuis Odoo
 
 1. Aller sur la page de configuration de la compta et cliquer sur **"Check config for EN16931 invoicing"** : ce bouton vérifie que la configuration (taxes, précisions décimales, codes d'exonération, etc.) est correcte pour générer des factures conformes EN16931. Cette étape ne teste pas directement Saxon Server, mais est un prérequis.

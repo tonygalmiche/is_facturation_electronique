@@ -15,6 +15,11 @@ InfoSaône - Module Odoo 18 pour Facturation électronique
         'account',                         # Facturation de base Odoo
 
         'l10n_fr_einvoicing',               # Akretion - facturation électronique française (CTC)
+        'base_business_document_import',    # OCA - modèle business.document.import, requis par l10n_fr_einvoicing (import Super PDP)
+        'account_invoice_import',           # OCA - import factures fournisseur PDF/XML, requis par l10n_fr_einvoicing_import
+        'base_facturx',                     # OCA - socle technique requis par account_invoice_import_facturx
+        'account_invoice_import_facturx',   # OCA - parsing du XML CII/Factur-X embarqué dans le PDF fournisseur
+        'l10n_fr_einvoicing_import',        # Akretion - implémente réellement l'import des factures fournisseur Super PDP
         'l10n_fr_siret',                    # OCA - SIREN/NIC/SIRET sur partenaires
         'l10n_fr_siret_account',            # OCA - lien SIRET / comptabilité française
         'base_view_inheritance_extension',  # OCA - dépendance technique (héritage de vues)

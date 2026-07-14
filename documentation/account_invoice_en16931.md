@@ -55,6 +55,18 @@ C'est le code derrière le bouton **"Check config for EN16931 invoicing"** (cf. 
 
 Champ `no_vat_taxes` (calculé) : vrai si la société n'a aucune taxe de type `VAT` — utile pour les entités non assujetties (auto-entrepreneurs, associations), qui doivent alors renseigner `no_vat_taxes_vatex_id` (motif d'exonération global de la société).
 
+## Bugs connus (upstream)
+
+**`UserWarning` inoffensif sur `_prepare_en16931_payment_data`** : [`account_move.py:462-463`](../../account_invoice_en16931/models/account_move.py#L462-L463) fait `payment_unece_code = payment_method_line and payment_method_line.payment_method_id.unece_code`. Si `payment_method_line` (`preferred_payment_method_line_id`) est vide, Python `and` renvoie l'opérande falsy tel quel — un recordset vide `account.payment.method.line()` — au lieu de `False`. Les comparaisons suivantes (`payment_unece_code in CREDIT_TRF_CODES` / `in DIRECT_DEBIT_CODES`) comparent alors ce recordset à des chaînes, d'où :
+
+```
+UserWarning: unsupported operand type(s) for "==": 'account.payment.method.line()' == '59'
+```
+
+Observé à l'envoi d'une facture client sans mode de paiement préféré configuré. Sans conséquence : le résultat (`vals = {}`, pas de bloc paiement dans le XML) est correct, la facture part normalement. Pas corrigé ici (bug upstream mineur, pas de patch local jugé nécessaire pour un simple warning).
+
+Le mode de paiement (bloc BG-16) n'est de toute façon **pas obligatoire** en EN16931 (cardinalité 0..1) : la règle schématron **BR-49** n'exige BT-81 que si BG-16 est présent, pas sa présence elle-même — cohérent avec la validation réussie malgré `vals = {}`.
+
 ## Installation
 
 Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=6.1` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
