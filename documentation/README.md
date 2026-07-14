@@ -18,6 +18,12 @@ Le script [`installation-modules-oca.sh`](./installation-modules-oca.sh) automat
 
 Ne gère pas les libs Python (`factur-x`, `pyfrctc`) ni Saxon Server — voir [lib-factur-x.md](./lib-factur-x.md), [lib-pyfrctc.md](./lib-pyfrctc.md), [saxon-server.md](./saxon-server.md).
 
+Pour l'import des factures fournisseur (section 2 ci-dessous), script dédié [`installation-modules-oca-import.sh`](./installation-modules-oca-import.sh) :
+
+```bash
+./installation-modules-oca-import.sh [dossier_destination]
+```
+
 ---
 
 ## 1. Stack communautaire Akretion/OCA
@@ -56,7 +62,33 @@ Saxon Server (cf. saxon-server.md) — appelé en HTTP par les libs pyfrctc ET f
 
 ---
 
-## 2. Module officiel Odoo `l10n_fr_pdp`
+## 2. Import des factures fournisseur (Super PDP)
+
+Complète la stack 1 : sans ces modules, `l10n_fr_einvoicing` ne fait que **recevoir** les flux mais ne crée jamais la facture fournisseur correspondante (cf. [import-depuis-super-pdp.md](./import-depuis-super-pdp.md) pour le détail des incidents rencontrés). Script d'installation dédié : [`installation-modules-oca-import.sh`](./installation-modules-oca-import.sh).
+
+```
+l10n_fr_einvoicing_import                            (Akretion, cf. l10n_fr_einvoicing_import.md)
+├── l10n_fr_einvoicing                               (cf. arbre 1 ci-dessus)
+└── account_invoice_import                           (OCA/edi, cf. account_invoice_import.md)
+    ├── base_business_document_import                (OCA/edi, cf. base_business_document_import.md)
+    │   ├── account_tax_unece                        (cf. arbre 1 ci-dessus)
+    │   └── uom_unece                                (cf. arbre 1 ci-dessus)
+    ├── base_iban                                    [natif Odoo]
+    └── account                                      [natif Odoo]
+
+Pour parser le XML CII/Factur-X embarqué dans le PDF fournisseur (sinon parse_xml_invoice()
+reste un stub qui échoue silencieusement, cf. import-depuis-super-pdp.md #4) :
+account_invoice_import_facturx                       (OCA/edi, cf. account_invoice_import_facturx.md)
+├── account_invoice_import                           (ci-dessus)
+└── base_facturx                                     (OCA/edi, cf. base_facturx.md)
+    ├── uom_unece                                    (cf. arbre 1 ci-dessus)
+    ├── account_tax_unece                            (cf. arbre 1 ci-dessus)
+    └── account_payment_unece                        (cf. arbre 1 ci-dessus)
+```
+
+---
+
+## 3. Module officiel Odoo `l10n_fr_pdp`
 
 ```
 l10n_fr_pdp (Odoo SA, cf. l10n_fr_pdp.md)
@@ -90,12 +122,14 @@ l10n_fr_pdp (Odoo SA, cf. l10n_fr_pdp.md)
 | [lib Python `pyfrctc`](./lib-pyfrctc.md) | Akretion (PyPI) | API AFNOR XP Z12-013 (annuaire, flux, CDAR) — appelle Saxon Server |
 | [lib Python `factur-x`](./lib-factur-x.md) | Akretion (PyPI) | Génération XML Factur-X/UBL — appelle Saxon Server pour la validation Schematron |
 | [Saxon Server](./saxon-server.md) | willemvlh (externe) | Serveur HTTP de validation Schematron (XSLT2), composant obligatoire non-Odoo |
+| [`l10n_fr_einvoicing_import`](./l10n_fr_einvoicing_import.md) | Akretion | Implémente réellement l'import des factures fournisseur reçues de Super PDP |
+| [`account_invoice_import`](./account_invoice_import.md) | OCA/edi | Import générique de factures fournisseur PDF/XML, matching via `business.document.import` |
+| [`base_business_document_import`](./base_business_document_import.md) | OCA/edi | Modèle abstrait `business.document.import` : méthodes de matching (partenaire, produit, taxe...) |
+| [`account_invoice_import_facturx`](./account_invoice_import_facturx.md) | OCA/edi | Parsing du XML CII/Factur-X embarqué dans un PDF fournisseur |
+| [`base_facturx`](./base_facturx.md) | OCA/edi | Socle technique (mapping UNECE) requis par `account_invoice_import_facturx` |
 | [`l10n_fr_pdp`](./l10n_fr_pdp.md) | Odoo SA | Facturation électronique via la plateforme cloud `pdp.odoo.com` |
 
 ## Documents transverses
 
 - [akretion.md](./akretion.md) — annonce et contexte de la réécriture Factur-X/UBL par Alexis de Lattre (versions des libs, choix d'architecture)
 - [super-pdp.md](./super-pdp.md) — plateforme PDP utilisée pour les tests
-- [documentation-pyfrctc.md](./documentation-pyfrctc.md) — détail de l'API de la lib `pyfrctc` (annuaire, flux, CDAR)
-- [installation.md](./installation.md) — installation générale du projet
-- [documentation.md](./documentation.md) — documentation générale

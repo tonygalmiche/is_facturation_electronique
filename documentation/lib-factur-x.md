@@ -67,4 +67,4 @@ Si une copie existe dans `/home/odoo/.local/lib/python3.X/site-packages/facturx`
 
 - [akretion.md](./akretion.md) — annonce de la réécriture Factur-X/UBL et passage à Saxon Server
 - [saxon-server.md](./saxon-server.md) — le service externe requis pour la validation Schematron
-- [documentation-pyfrctc.md](./documentation-pyfrctc.md) — lib `pyfrctc`, dépendance complémentaire (annuaire, événements AFNOR)
+- [lib-pyfrctc.md](./lib-pyfrctc.md) — lib `pyfrctc`, dépendance complémentaire (annuaire, événements AFNOR)

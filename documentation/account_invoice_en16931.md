@@ -32,7 +32,7 @@ Le cœur du module : une série de méthodes `_prepare_btXX`/`_prepare_bgXX` (un
 
 - `base` — schématron Factur-X standard
 - `fr-ctc` — schématron Factur-X + schématron de la réforme française
-- `fr-chorus` — schématron additionnel Chorus Pro (pas encore disponible, cf. [documentation-pyfrctc.md](./documentation-pyfrctc.md))
+- `fr-chorus` — schématron additionnel Chorus Pro (pas encore disponible, cf. [lib-pyfrctc.md](./lib-pyfrctc.md))
 
 ### Paramètres Saxon Server (`wizards/res_config_settings.py`)
 

@@ -1,4 +1,9 @@
 
+
+# Mail du 08/07/2026
+
+
+
 Alexis de Lattre a commencé une discussion
 
 Première release v18 "sérieuse"
@@ -88,3 +93,18 @@ Liens
 
     Odoo modules for e-invoicing in France starting september 2026 - Issues · akretion/fr-einvoicing
 
+
+
+
+
+# Mail du 14/07/2026
+
+Merci à tous ceux qui ont fait des tests et remonté des bugs. J'ai déjà fait une première passe de bugfix cet après-midi, et je vais continuer... c'est la priorité du moment !
+
+Je viens de commiter à l'instant une amélioration importante concernant le serveur Saxon et le problème du fichier additionnel CodeDB XML utilisé par le schematron Factur-X: par défaut, Odoo partage via un controlleur public le fichier CodeDB XML du profil extended (celui qu'on utilise). Et j'ai fait en sorte que, dans la lib factur-x 6.4 (sortie à l'instant), on peut donner en argument une URL spécifique pour récupérer le fichier CodeDB XML ; si c'est le cas, il utilisera cette URL spécifique plutôt que de mettre l'URL du fichier sur Github. Donc maintenant, sauf si vous avez explicitement configuré un répertoire contenant les fichiers CodeDB XML, Odoo fera en sorte que le serveur Saxon aille chercher le fichier CodeDB XML... sur Odoo ! Pour cela, il utilise le ir.config_parameter "web.base.url" (qui devrait toujours être présent) et il complète avec le chemin vers le fichier CodeDB XML (/en16931/FACTUR-X_EXTENDED_codedb.xml). A noter: Odoo récupère le fichier CodeDB XML via la lib factur-x, ce qui permet de s'assurer que le fichier est bien la bonne version à jour par rapport au fichier schematron. Avantages de cette nouvelle solution :
+
+1) pas besoin de lancer le serveur Saxon avec --insecure
+
+2) bonnes perfs,
+
+3) pas de dépendance sur la connexion Internet
