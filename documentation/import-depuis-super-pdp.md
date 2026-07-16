@@ -80,6 +80,26 @@ ERROR    UnboundLocalError: cannot access local variable 'err' where it is not a
 
 **Correctif** : installer [account_invoice_import_facturx.md](./account_invoice_import_facturx.md) et [base_facturx.md](./base_facturx.md).
 
+### 5. Warnings non bloquants après import : produit non trouvé + montant de taxe forcé
+
+Une fois toute la chaîne de modules installée, l'import réussit mais poste parfois ces deux avertissements dans le chatter de la facture fournisseur créée (facture non structurée, ex. ticket de caisse Burger Queen) :
+
+```
+Odoo couldn't find any product corresponding to the following information extracted from the business document:
+Barcode:
+Product code:
+Supplier: Burger Queen
+Le montant total de taxes a été forcé à 0,00 € (le montant calculé par Odoo était de 0,36 €).
+```
+
+**Cause** : le XML Factur-X ne fournit pas d'infos produit exploitables (ni code-barres, ni code produit) ; `_match_product()` (`base_business_document_import/models/business_document_import.py:645`) échoue alors à trouver un `product.product` et retombe sur le produit générique par défaut. Pour la taxe, `account_invoice_import` recalcule la TVA à partir des lignes (ici 0,36 €), constate qu'elle ne colle pas au total déclaré dans le XML, et force le montant de taxe à 0,00 € pour faire correspondre le total TTC réellement dû (`account_invoice_import/wizard/account_invoice_import.py:1037-1093`). Ce n'est **pas bloquant** : la facture est créée quand même.
+
+**À vérifier après import** :
+1. Le montant TTC total de la facture correspond bien au montant payé.
+2. Corriger manuellement le taux de TVA sur la ligne (souvent forcé à 0 par erreur).
+
+**Pour réduire ces warnings à l'avenir** : configurer sur la fiche du fournisseur concerné (onglet Comptabilité > section *Import de facture*) un **Produit par défaut** (`invoice_import_product_id`) et/ou des **Taxes par défaut** (`invoice_import_tax_ids`), définis dans `account_invoice_import/models/res_partner.py`.
+
 ### Chaîne complète des modules requis pour l'import des factures fournisseur Super PDP
 
 ```

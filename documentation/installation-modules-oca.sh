@@ -1,41 +1,86 @@
 #!/bin/bash
-# Télécharge et met en place tous les modules OCA/Akretion nécessaires à la
-# facturation électronique (cf. README.md pour l'arbre de dépendances complet).
+# Télécharge et met en place les modules OCA/Akretion nécessaires à la
+# facturation électronique, selon le cas d'installation souhaité
+# (cf. installation.md pour le détail des modules et de leur rôle).
 #
 # Ne gère PAS : les libs Python (factur-x, pyfrctc, cf. lib-factur-x.md /
 # lib-pyfrctc.md) ni Saxon Server (cf. saxon-server.md) — installation séparée.
 #
-# Usage : ./installation-modules-oca.sh [dossier_destination]
+# Usage : ./installation-modules-oca.sh <cas> [dossier_destination]
+#   cas = 1 : génération d'une facture Factur-X/EN16931, sans envoi sur la PA
+#   cas = 2 : cas 1 + envoi de la facture sur la PA
+#   cas = 3 : cas 2 + réception des factures fournisseurs depuis la PA
 # Par défaut, dossier_destination = /media/sf_dev_odoo/18.0/facturation-electronique
 
 set -euo pipefail
 
-DEST_DIR="${1:-/media/sf_dev_odoo/18.0/facturation-electronique}"
+usage() {
+  echo "Usage : $0 <cas:1|2|3> [dossier_destination]" >&2
+  echo "  1 : génération Factur-X/EN16931, sans envoi sur la PA" >&2
+  echo "  2 : cas 1 + envoi de la facture sur la PA" >&2
+  echo "  3 : cas 2 + réception des factures fournisseurs depuis la PA" >&2
+  exit 1
+}
+
+CAS="${1:-}"
+case "$CAS" in
+  1|2|3) ;;
+  *) usage ;;
+esac
+
+DEST_DIR="${2:-/media/sf_dev_odoo/18.0/facturation-electronique}"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 mkdir -p "$DEST_DIR"
 
-# repo|branche|module1,module2,...
-REPOS=(
-  "https://github.com/OCA/l10n-france.git|18.0|l10n_fr_siret,l10n_fr_siret_account"
-  "https://github.com/OCA/server-tools.git|18.0|base_view_inheritance_extension"
-  "https://github.com/akretion/fr-einvoicing.git|18.0|l10n_fr_einvoicing,l10n_fr_account_invoice_en16931,account_invoice_en16931"
-  "https://github.com/OCA/community-data-files.git|18.0|base_unece,uom_unece,account_payment_unece"
-  "https://github.com/OCA/account-payment.git|18.0|account_payment_method_base"
-  "https://github.com/OCA/intrastat-extrastat.git|18.0|intrastat_base"
+# module -> repo|branche (account_tax_unece est géré à part, cf. plus bas)
+declare -A MODULE_REPO=(
+  [account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|18.0"
+  [l10n_fr_account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|18.0"
+  [l10n_fr_siret]="https://github.com/OCA/l10n-france.git|18.0"
+  [uom_unece]="https://github.com/OCA/community-data-files.git|18.0"
+  [account_payment_unece]="https://github.com/OCA/community-data-files.git|18.0"
+  [base_unece]="https://github.com/OCA/community-data-files.git|18.0"
+  [intrastat_base]="https://github.com/OCA/intrastat-extrastat.git|18.0"
+  [base_view_inheritance_extension]="https://github.com/OCA/server-tools.git|18.0"
+  [account_payment_method_base]="https://github.com/OCA/account-payment.git|18.0"
+  [l10n_fr_einvoicing]="https://github.com/akretion/fr-einvoicing.git|18.0"
+  [l10n_fr_siret_account]="https://github.com/OCA/l10n-france.git|18.0"
+  [l10n_fr_einvoicing_import]="https://github.com/akretion/fr-einvoicing.git|18.0"
+  [account_invoice_import]="https://github.com/OCA/edi.git|18.0"
+  [account_invoice_import_facturx]="https://github.com/OCA/edi.git|18.0"
+  [base_facturx]="https://github.com/OCA/edi.git|18.0"
+  [base_business_document_import]="https://github.com/OCA/edi.git|18.0"
 )
 
-echo "== Modules OCA/Akretion standards =="
-for entry in "${REPOS[@]}"; do
-  IFS='|' read -r repo branch modules <<< "$entry"
+# Modules propres à chaque cas (cf. installation.md)
+CASE1_MODULES=(account_invoice_en16931 l10n_fr_account_invoice_en16931 l10n_fr_siret uom_unece account_payment_unece base_unece intrastat_base base_view_inheritance_extension account_payment_method_base)
+CASE2_MODULES=(l10n_fr_einvoicing l10n_fr_siret_account)
+CASE3_MODULES=(l10n_fr_einvoicing_import account_invoice_import account_invoice_import_facturx base_facturx base_business_document_import)
+
+MODULES=("${CASE1_MODULES[@]}")
+[ "$CAS" -ge 2 ] && MODULES+=("${CASE2_MODULES[@]}")
+[ "$CAS" -ge 3 ] && MODULES+=("${CASE3_MODULES[@]}")
+
+echo "== Cas d'installation $CAS : ${#MODULES[@]} module(s) OCA/Akretion à installer =="
+
+# Regroupe les modules par dépôt pour ne cloner chaque dépôt qu'une fois
+declare -A REPO_MODULES=()
+for module in "${MODULES[@]}"; do
+  repo_branch="${MODULE_REPO[$module]}"
+  REPO_MODULES["$repo_branch"]+="$module,"
+done
+
+for repo_branch in "${!REPO_MODULES[@]}"; do
+  IFS='|' read -r repo branch <<< "$repo_branch"
   repo_name="$(basename "$repo" .git)"
   clone_dir="$TMP_DIR/$repo_name"
 
   echo "--- Clone $repo (branche $branch) ---"
   git clone -b "$branch" --depth 1 "$repo" "$clone_dir"
 
-  IFS=',' read -ra module_list <<< "$modules"
+  IFS=',' read -ra module_list <<< "${REPO_MODULES[$repo_branch]}"
   for module in "${module_list[@]}"; do
     if [ -d "$DEST_DIR/$module" ]; then
       echo "  [skip] $module existe déjà dans $DEST_DIR, non écrasé"
@@ -52,9 +97,9 @@ for entry in "${REPOS[@]}"; do
   rm -rf "$clone_dir"
 done
 
-# account_tax_unece : PR VATEX #277 non mergée, à récupérer depuis le fork
-# Akretion tant que la PR n'est pas fusionnée dans OCA/community-data-files
-# (cf. account_tax_unece.md)
+# account_tax_unece (requis dès le cas 1) : PR VATEX #277 non mergée, à
+# récupérer depuis le fork Akretion tant qu'elle n'est pas fusionnée dans
+# OCA/community-data-files (cf. account_tax_unece.md)
 echo "--- Clone account_tax_unece (fork Akretion, PR VATEX #277 non mergée) ---"
 if [ -d "$DEST_DIR/account_tax_unece" ]; then
   echo "  [skip] account_tax_unece existe déjà dans $DEST_DIR, non écrasé"
@@ -69,10 +114,12 @@ fi
 
 echo
 echo "== Terminé =="
-echo "Modules installés dans : $DEST_DIR"
+echo "Modules installés dans : $DEST_DIR (cas $CAS)"
 echo
 echo "Étapes restantes (non gérées par ce script) :"
-echo "  - lib Python factur-x >= 6.1 (cf. lib-factur-x.md)"
-echo "  - lib Python pyfrctc >= 0.13 (cf. lib-pyfrctc.md)"
+echo "  - lib Python factur-x >= 6.3 (cf. lib-factur-x.md)"
+if [ "$CAS" -ge 2 ]; then
+  echo "  - lib Python pyfrctc >= 0.12 (cf. lib-pyfrctc.md)"
+fi
 echo "  - Saxon Server (cf. saxon-server.md)"
-echo "  - Mettre à jour la liste des applications dans Odoo, puis installer is_facturation_electronique"
+echo "  - Mettre à jour la liste des applications dans Odoo, puis installer les modules"
