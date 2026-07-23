@@ -71,3 +71,10 @@ Modules à ajouter en plus des deux parties précédentes :
 ## Script d'installation
 
 [installation-modules-oca.sh](installation-modules-oca.sh)
+
+## Dernière mise à jour des modules/libs sur GitHub
+
+Date du dernier commit touchant le module (ou le dépôt, pour les libs) sur la
+branche utilisée : [last_update.sh](last_update.sh) — à exécuter pour obtenir
+les dates à jour (nécessite `curl`; `GITHUB_TOKEN` optionnel pour éviter le
+rate-limit anonyme de 60 requêtes/heure).
