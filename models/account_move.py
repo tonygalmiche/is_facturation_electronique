@@ -145,7 +145,7 @@ class AccountMove(models.Model):
                     check_option=check_schematron,
                     saxon_server_url=saxon_server_url,
                     saxon_server_codedb_dir=saxon_server_codedb_dir,
-                    raise_if_http_error=True,
+                    saxon_server_raise_if_http_error=True,
                 )
             except Exception as err:
                 raise UserError(

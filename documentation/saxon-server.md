@@ -52,6 +52,13 @@ mkdir -p /opt/saxon-server
 cd /opt/saxon-server
 wget https://github.com/willemvlh/saxon-server/releases/download/v1.15/saxon-server-1.15.jar
 
+
+# Utilisateur système dédié (pas de shell, pas de home réel)
+adduser --system --group --no-create-home saxon-server
+
+# Le répertoire d'installation doit lui appartenir
+chown -R saxon-server:saxon-server /opt/saxon-server
+
 java -jar saxon-server-1.15.jar --insecure
 ```
 
@@ -71,15 +78,6 @@ Options utiles au lancement :
 
 ## Faire tourner Saxon Server en service (systemd)
 
-Pour que le serveur démarre automatiquement au boot, redémarre en cas de crash et ne tourne pas en root, on le fait tourner via un utilisateur système dédié et un service `systemd`.
-
-```bash
-# Utilisateur système dédié (pas de shell, pas de home réel)
-adduser --system --group --no-create-home saxon-server
-
-# Le répertoire d'installation doit lui appartenir
-chown -R saxon-server:saxon-server /opt/saxon-server
-```
 
 Créer le fichier `/etc/systemd/system/saxon-server.service` :
 

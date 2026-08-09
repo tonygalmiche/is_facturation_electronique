@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="is_view_tax_tree" model="ir.ui.view">
+        <field name="name">is.account.tax.list</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_tree"/>
+        <field name="arch" type="xml">
+            <field name="tax_scope" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="invoice_label" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
