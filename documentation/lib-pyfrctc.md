@@ -70,17 +70,18 @@ Fichiers de validation embarqués :
 Disponible sur PyPI depuis la version 0.13 (avant ça, install directe depuis GitHub). Même convention que pour [factur-x](./lib-factur-x.md) sur nos VPS Odoo : pas de venv, install system-wide en root.
 
 ```bash
-pip install --break-system-packages pyfrctc==0.13
-```
-
-Pour minimiser ce qui est géré par pip plutôt que par `apt` (plus propre à maintenir), installer d'abord via `apt` les dépendances disponibles dans les dépôts Debian, puis relancer l'install pip — les paquets déjà satisfaits par `apt` ne seront pas réinstallés par pip :
-
-```bash
 apt install python3-oauthlib python3-requests-oauthlib
-pip install --break-system-packages pyfrctc==0.13
+apt install python3-pip
+apt install python3-packaging
+apt install unicode
+
+su odoo
+pip install --break-system-packages pyfrctc
+pip show pyfrctc
+Version: 0.15
 ```
 
-`python-stdnum` restera néanmoins géré par pip : la version Debian (1.18) est trop ancienne pour l'exigence de `pyfrctc` (`>=1.20`), pip doit donc en installer une plus récente quoi qu'il arrive.
+
 
 ## Vérifier ce qui est installé
 

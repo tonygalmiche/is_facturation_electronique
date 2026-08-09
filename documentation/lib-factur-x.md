@@ -14,7 +14,14 @@ Sur Debian, `pip install` direct échoue avec `externally-managed-environment` (
 **Convention retenue sur nos VPS Odoo : pas de venv, install system-wide avec `--break-system-packages`.** Cohérent avec le fait qu'`odoo-bin` (`#!/usr/bin/env python3`) tourne directement sur le Python système, et que d'autres libs (dont une ancienne version de `factur-x`) y sont déjà installées de cette façon.
 
 ```bash
-pip install --break-system-packages factur-x==6.1
+apt install python3-pip
+apt install python3-packaging
+apt install unicode
+
+su odoo
+pip install --break-system-packages factur-x
+pip show factur-x
+Version: 6.7
 ```
 
 - À exécuter en tant que **root** (ex. `su -` ou session root) : le dossier `/usr/local/lib/python3.X/dist-packages/` appartient à `root`, l'utilisateur `odoo` n'a pas les droits d'écriture dessus.
