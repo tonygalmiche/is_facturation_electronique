@@ -32,11 +32,12 @@ Pas vraiment : Saxon (Home Edition, gratuit) est en pratique la **seule** implé
 
 ## Point d'attention : le fichier CodeDB
 
-Les schématrons Factur-X (profil EXTENDED) référencent un fichier externe `FACTUR-X_EXTENDED_codedb.xml` (via le fichier `Factur-X_1.09_EXTENDED.xsl`). Or Saxon Server ne permet pas d'envoyer ce fichier annexe à la volée dans la requête `/transform`. Deux solutions (cf. https://github.com/willemvlh/saxon-server/issues/23) :
+Les schématrons Factur-X (profil EXTENDED) référencent un fichier externe `FACTUR-X_EXTENDED_codedb.xml` (via le fichier `Factur-X_1.09_EXTENDED.xsl`). Or Saxon Server ne permet pas d'envoyer ce fichier annexe à la volée dans la requête `/transform`. Trois solutions (cf. https://github.com/willemvlh/saxon-server/issues/23) :
 
-- **URL publique** (comportement par défaut de la lib factur-x) : le XSL pointe vers l'URL GitHub du fichier CodeDB. Simple, mais ajoute de la latence et nécessite un accès Internet depuis le serveur Saxon. À éviter en prod.
-- **Accès filesystem local** (recommandé par le projet en prod) : lancer Saxon Server avec l'option `--insecure` (ou `-i`) qui autorise l'accès au système de fichiers, et mettre à disposition un répertoire contenant le(s) fichier(s) `FACTUR-X_<profil>_codedb.xml` (seul le profil `EXTENDED` est utilisé par l'implémentation Odoo, donc seul `FACTUR-X_EXTENDED_codedb.xml` est nécessaire — disponible ici : https://github.com/akretion/factur-x/tree/master/src/facturx/xsd_and_schematron/facturx-extended). Le chemin de ce répertoire se configure ensuite côté Odoo via un `ir.config_parameter`, accessible depuis la page de configuration de la compta.
-**Note** : on a testé une variante avec le CodeDB servi via une URL nginx locale au lieu d'un chemin filesystem — sans intérêt, `--insecure` reste nécessaire dans les deux cas (le mode sécurisé par défaut de Saxon Server bloque aussi l'accès réseau via `document()`, pas seulement l'accès au filesystem). Voir la note plus bas dans la section CodeDB pour le détail.
+- **Odoo sert lui-même le fichier CodeDB en HTTP** (comportement par défaut depuis `factur-x>=6.4` / module `account_invoice_en16931`, commit [`03a3f0f`](https://github.com/akretion/fr-einvoicing/commit/03a3f0fcb139805d90ca43e2298a7419446223ba) du 2026-07-14) : Odoo expose un controller public `GET /en16931/FACTUR-X_EXTENDED_codedb.xml` (fichier `controllers/get_facturx_codedb.py`, servi depuis la lib `factur-x` via `facturx_schematron_get_codedb_xml_file`) et transmet cette URL au serveur Saxon via le paramètre `saxon_server_codedb_base_url` (calculé par défaut à partir de `web.base.url` + `en16931/`, sans configuration nécessaire). Saxon Server n'a donc plus besoin d'accès Internet public ni d'accès filesystem local pour le CodeDB — juste d'un accès réseau vers Odoo. **C'est la solution par défaut désormais, plus besoin des deux options ci-dessous dans la majorité des cas.**
+- **URL publique GitHub** (ancien comportement par défaut de la lib factur-x, avant `factur-x>=6.4`) : le XSL pointe vers l'URL GitHub du fichier CodeDB. Ajoute de la latence et nécessite un accès Internet depuis le serveur Saxon. À éviter en prod — remplacé par la solution ci-dessus sur les versions récentes.
+- **Accès filesystem local** (toujours possible, prioritaire si configuré) : lancer Saxon Server avec l'option `--insecure` (ou `-i`) qui autorise l'accès au système de fichiers, et mettre à disposition un répertoire contenant le(s) fichier(s) `FACTUR-X_<profil>_codedb.xml` (seul le profil `EXTENDED` est utilisé par l'implémentation Odoo, donc seul `FACTUR-X_EXTENDED_codedb.xml` est nécessaire — disponible ici : https://github.com/akretion/factur-x/tree/master/src/facturx/xsd_and_schematron/facturx-extended). Le chemin de ce répertoire se configure côté Odoo via le `ir.config_parameter` `en16931.saxon_server_codedb_dir` — **non exposé dans l'UI de configuration de la compta depuis le commit ci-dessus** (retiré de `wizards/res_config_settings.py`/`.xml`), à renseigner directement dans Réglages > Technique > Paramètres Système si on veut forcer cette option plutôt que le partage HTTP par défaut. Si ce paramètre est renseigné, il prend le pas sur `saxon_server_codedb_base_url` (cf. `account_move.py`, `search_read_facturx_xml`).
+**Note** : on a testé une variante avec le CodeDB servi via une URL nginx locale au lieu d'un chemin filesystem — sans intérêt avec l'option filesystem, `--insecure` reste nécessaire dans ce cas (le mode sécurisé par défaut de Saxon Server bloque aussi l'accès réseau via `document()`, pas seulement l'accès au filesystem). Voir la note plus bas dans la section CodeDB pour le détail. Avec la solution HTTP par défaut (Odoo sert le fichier), `--insecure` reste également nécessaire car Saxon Server doit pouvoir faire un `document()` réseau vers l'URL Odoo.
 
 # Installation
 
@@ -234,10 +235,16 @@ chown saxon-server:saxon-server FACTUR-X_EXTENDED_codedb.xml
 
 Une fois le serveur testé et accessible, renseigner sur la page de configuration de la compta (exposé par le module [account_invoice_en16931](./account_invoice_en16931.md), `wizards/res_config_settings.py`) :
 
-- `en16931.saxon_server_url` — l'URL du serveur Saxon (ex : `http://localhost:5000`) ;
-- `en16931.saxon_server_codedb_dir` — le chemin local vers le répertoire contenant `FACTUR-X_EXTENDED_codedb.xml` (`--insecure` obligatoire côté Saxon Server).
+- `en16931.saxon_server_url` — l'URL du serveur Saxon (ex : `http://localhost:5000`).
 
-## Incident rencontré : "Read timed out" sur le schématron `base`
+Le CodeDB n'a normalement plus besoin de configuration manuelle (cf. section CodeDB plus haut) : Odoo le sert lui-même via HTTP, à partir de `web.base.url`. Deux `ir.config_parameter` restent disponibles pour forcer un autre comportement, mais **ne sont plus exposés dans l'UI** de cette page — à renseigner directement dans Réglages > Technique > Paramètres Système si besoin :
+
+- `en16931.saxon_server_codedb_base_url` — pour forcer une autre URL de base que `web.base.url` (ex : si Saxon Server ne peut pas résoudre le nom d'hôte public d'Odoo et qu'il faut lui donner une URL interne) ;
+- `en16931.saxon_server_codedb_dir` — pour revenir à l'ancien comportement (chemin local sur le serveur Saxon, `--insecure` obligatoire) ; si renseigné, il est prioritaire sur `saxon_server_codedb_base_url`.
+
+## Incident rencontré (historique, versions < `factur-x` 6.4) : "Read timed out" sur le schématron `base`
+
+**Note** : cet incident concernait le comportement par défaut *avant* le passage au partage HTTP du CodeDB par Odoo (cf. section CodeDB plus haut, `factur-x>=6.4`). Sur les versions actuelles, Odoo sert le CodeDB depuis lui-même par défaut (réseau local/interne), donc ce scénario (dépendance à une URL publique GitHub) ne devrait plus se reproduire sans intervention volontaire. Conservé ici à titre de contexte.
 
 Erreur observée à la validation d'une facture :
 
@@ -250,11 +257,17 @@ Read timed out. (read timeout=5)
 
 **Le serveur Saxon n'était pas en panne** (actif, répond en <50ms sur un test basique, et le schématron `fr-ctc` passait en 2,4s). Cause : `en16931.saxon_server_codedb_dir` n'était pas renseigné dans `ir_config_parameter` → la lib `factur-x` va chercher `FACTUR-X_EXTENDED_codedb.xml` via l'URL publique GitHub à chaque appel du schématron `base` (log `"Replacing codedb XML files by public URLs..."`), au lieu du fichier local déjà présent dans `/opt/saxon-server`. Ce chemin réseau, additionné à la recompilation du XSL (~2s), a dépassé le timeout **codé en dur à 5s** côté client Python (`facturx.py:167`, `SAXON_SERVER_TIMEOUT = 5`, non configurable) — probablement juste après un redémarrage du service (JVM "à froid").
 
-**Action à faire** : Comptabilité > Configuration, bloc EN16931 :
+**Action faite à l'époque** : Comptabilité > Configuration, bloc EN16931 :
 - `Specific Saxon Server URL` → `http://localhost:5000` (si vide)
-- `Saxon Server CodeDB dir` → `/opt/saxon-server`
+- `Saxon Server CodeDB dir` → `/opt/saxon-server` (champ depuis retiré de l'UI, cf. note ci-dessus — équivalent aujourd'hui : renseigner `en16931.saxon_server_codedb_dir` dans Réglages > Technique > Paramètres Système)
 
-Ceci fait passer le CodeDB par le filesystem local (déjà en place, cf. section CodeDB plus haut) au lieu du réseau, ce qui élimine la dépendance à GitHub et la marge fragile par rapport au timeout de 5s.
+Ceci fait passer le CodeDB par le filesystem local (déjà en place, cf. section CodeDB plus haut) au lieu du réseau, ce qui élimine la dépendance à GitHub et la marge fragile par rapport au timeout de 5s. Sur les versions actuelles, le partage HTTP par défaut (Odoo sert le CodeDB) résout ce même problème sans configuration.
+
+## Incident rencontré (2026-08-03) : "Read timed out" après redémarrage du service
+
+Même symptôme que l'incident historique ci-dessus (`Check 'base' failed ... Read timed out (read timeout=5)`), mais cause différente : configuration correcte (factur-x 6.6, CodeDB servi en HTTP par Odoo, `web.base.url` en local répond en 44ms). Test réel du premier appel `/transform` juste après un redémarrage du service Saxon : **4,1s**, tout près du timeout de 5s codé en dur côté client. Les appels suivants (JVM chaude) : **2,0-2,4s**, largement sous la limite.
+
+Cause : premier appel après redémarrage (JIT froid + compilation du XSL ~1,8 Mo) qui flirte avec le timeout non configurable. Pas de fix appliqué (config déjà correcte) — pistes possibles si ça se reproduit : patcher `SAXON_SERVER_TIMEOUT` dans la lib (écrasé aux upgrades), ping périodique pour garder la JVM chaude, ou remonter le problème en amont sur `akretion/factur-x`.
 
 ## Test depuis Odoo
 

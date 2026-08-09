@@ -39,6 +39,7 @@ InfoSaône - Module Odoo 18 pour Facturation électronique
     ],
     'data' : [
         'views/res_config_settings_view.xml',
+        'views/account_move_view.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -100,6 +100,10 @@ Le montant total de taxes a été forcé à 0,00 € (le montant calculé par Od
 
 **Pour réduire ces warnings à l'avenir** : configurer sur la fiche du fournisseur concerné (onglet Comptabilité > section *Import de facture*) un **Produit par défaut** (`invoice_import_product_id`) et/ou des **Taxes par défaut** (`invoice_import_tax_ids`), définis dans `account_invoice_import/models/res_partner.py`.
 
+### Piège : le bouton "Importer depuis PA maintenant" n'est pas filtré par journal
+
+Le bouton visible dans les journaux Achats **et** Ventes (`l10n_fr_einvoicing/views/account_journal.xml`) appelle en réalité `self.company_id.fr_ctc_run_import_log_action(...)` (`account_journal.py:15-18`) : la synchronisation se fait au niveau de la **société**, pas du journal cliqué. Le type de journal n'est qu'un habillage UI — `_fr_ctc_run_import` (`fr_einvoicing_flow.py:361-368`) récupère toujours les 3 mêmes types de flux, codés en dur : `SupplierInvoice`, `CustomerInvoiceLC`, `SupplierInvoiceLC`. Donc cliquer depuis le journal Achats peut tout à fait ramener des flux `CustomerInvoiceLC` (client), ce qui est trompeur si on ne s'y attend pas.
+
 ### Chaîne complète des modules requis pour l'import des factures fournisseur Super PDP
 
 ```

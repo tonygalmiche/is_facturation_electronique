@@ -9,9 +9,6 @@ from odoo.exceptions import UserError
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-
-
-
     # def _prepare_bg23(self, base_lines, speedy):
     #     # Correctif pour account_invoice_en16931 (au 2026-07-13, commit 49e17e8) :
     #     # les clés lues ci-dessous étaient "target_base_amount_currency",
@@ -88,62 +85,117 @@ class AccountMove(models.Model):
     #             )
     #     return bg23, bt110, bt111
 
-    def generate_en16931_xml(self, flavor2level, pdf_invoice_bin=False):
-        # Si is_facturation_electronique.force_saxon_validation est actif,
-        # le XML est envoyé une seconde fois à Saxon Server ci-dessous (en plus
-        # de l'appel déjà fait dans super()) pour pouvoir bloquer la facture
-        # avec raise_if_http_error=True (cf. commentaire plus bas).
-        flavor2xmlbytes = super().generate_en16931_xml(
-            flavor2level, pdf_invoice_bin=pdf_invoice_bin
-        )
+    def _get_saxon_check_schematron_option(self):
+        """Détermine quel schématron doit être utilisé pour la validation
+        Saxon (mêmes règles que account_invoice_en16931.generate_en16931_xml).
+
+        On ne force "fr-ctc"/"fr-chorus" (qui exigent BT-34/BT-49, l'adresse
+        électronique vendeur/acheteur) que si la société ET le client sont
+        des entités "private"/"public" ACTIVES dans l'annuaire. Un statut
+        "private_inactive" signifie qu'il n'existe aucune ligne d'annuaire
+        active à sélectionner : BT-34/BT-49 ne pourront jamais être remplis
+        pour cette entité, donc la facture ne peut de toute façon pas être
+        déposée sur une PA aujourd'hui. Dans ce cas, on retombe sur le
+        schématron "base", qui n'exige pas ces champs."""
+        self.ensure_one()
+        check_schematron = "base"
+        if (
+            hasattr(self, "fr_directory_partner_entity_type")
+            and self.fr_directory_company_entity_type == "private"
+        ):
+            if self.fr_directory_partner_entity_type == "private":
+                check_schematron = "fr-ctc"
+            elif self.fr_directory_partner_entity_type == "public":
+                check_schematron = "fr-chorus"
+        return check_schematron
+
+    def _check_saxon_schematron_validation(self):
+        """Génère le XML Factur-X de la facture et le valide contre le
+        serveur Saxon, en levant une UserError explicite si le serveur est
+        injoignable (raise_if_http_error=True) ou si le document échoue
+        réellement au schématron.
+
+        Utilisé à la fois par le bouton de test manuel et, si le paramètre
+        "is_facturation_electronique.force_saxon_validation" est actif, par
+        action_post() pour bloquer la validation d'une facture non conforme.
+        """
+        self.ensure_one()
+        flavor2level = {"factur-x": "extended"}
+        # generate_en16931_xml() exécute déjà un contrôle schématron une
+        # première fois, mais en ignorant silencieusement les échecs de
+        # communication (raise_if_http_error=False, câblé en dur dans la lib
+        # facturx et non surchargeable depuis Odoo). On le relance ici avec
+        # raise_if_http_error=True pour bloquer réellement quand Saxon Server
+        # est injoignable (un échec de validation réel, c'est-à-dire un
+        # fichier qui échoue vraiment au schématron, lève déjà une erreur de
+        # son côté).
+        flavor2xmlbytes = self.generate_en16931_xml(flavor2level)
+        check_schematron = self._get_saxon_check_schematron_option()
+        saxon_server_url = self._get_specific_saxon_server_url()
+        saxon_server_codedb_dir = self._get_saxon_server_codedb_dir()
+        for flavor, xml_bytes in flavor2xmlbytes.items():
+            try:
+                xml_check_schematron(
+                    xml_bytes,
+                    flavor=flavor,
+                    level=flavor2level[flavor],
+                    check_option=check_schematron,
+                    saxon_server_url=saxon_server_url,
+                    saxon_server_codedb_dir=saxon_server_codedb_dir,
+                    raise_if_http_error=True,
+                )
+            except Exception as err:
+                raise UserError(
+                    self.env._(
+                        "Failed to validate the %(flavor)s XML file against "
+                        "the Saxon schematron server. Error: %(err)s",
+                        flavor=flavor,
+                        err=str(err),
+                    )
+                ) from err
+
+    def action_test_saxon_validation(self):
+        """Bouton de test manuel : valide la facture contre le serveur Saxon
+        sans bloquer/modifier quoi que ce soit, juste pour vérifier que tout
+        est bien configuré avant de valider la facture."""
+        self.ensure_one()
+        self._check_saxon_schematron_validation()
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": self.env._("Validation Saxon réussie"),
+                "message": self.env._(
+                    "Le fichier XML Factur-X a passé avec succès la "
+                    "validation Schematron sur le serveur Saxon."
+                ),
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
+    def _is_destined_to_pa(self):
+        """Une facture n'a d'intérêt à être validée contre le schématron
+        Factur-X que si elle est susceptible d'être un jour déposée sur une
+        PA/PDP (réforme française de facturation électronique), ce qui ne
+        concerne que les clients français. Un export (ex: client tunisien)
+        ne passera jamais par la PA, inutile de le bloquer sur ce contrôle.
+
+        Note : le module ne dépend pas encore de l10n_fr_einvoicing (cf.
+        "Cas 2" commenté dans le manifeste), donc pas de champ dédié
+        indiquant explicitement qu'une facture est destinée à la PA. Le pays
+        du client est utilisé comme proxy en attendant."""
+        self.ensure_one()
+        return self.partner_id.country_id.code == "FR"
+
+    def action_post(self):
         force_saxon_validation = (
             self.env["ir.config_parameter"]
             .sudo()
             .get_param("is_facturation_electronique.force_saxon_validation")
         )
         if force_saxon_validation:
-            check_schematron = "base"
-            if hasattr(
-                self, "fr_directory_partner_entity_type"
-            ) and self.fr_directory_company_entity_type in (
-                "private",
-                "private_inactive",
-            ):
-                if self.fr_directory_partner_entity_type in (
-                    "private",
-                    "private_inactive",
-                ):
-                    check_schematron = "fr-ctc"
-                elif self.fr_directory_partner_entity_type == "public":
-                    check_schematron = "fr-chorus"
-            saxon_server_url = self._get_specific_saxon_server_url()
-            saxon_server_codedb_dir = self._get_saxon_server_codedb_dir()
-            # generate_en16931_xml() ci-dessus a déjà exécuté ce même contrôle
-            # schematron une fois par flavor, mais en ignorant silencieusement
-            # les échecs de communication (raise_if_http_error=False, câblé en
-            # dur dans la lib facturx et non surchargeable depuis Odoo). On le
-            # relance ici avec raise_if_http_error=True pour bloquer réellement
-            # la facture quand Saxon Server est injoignable (un échec de
-            # validation réel, c'est-à-dire un fichier qui échoue vraiment au
-            # schematron, lève déjà une erreur de son côté).
-            for flavor, xml_bytes in flavor2xmlbytes.items():
-                try:
-                    xml_check_schematron(
-                        xml_bytes,
-                        flavor=flavor,
-                        level=flavor2level[flavor],
-                        check_option=check_schematron,
-                        saxon_server_url=saxon_server_url,
-                        saxon_server_codedb_dir=saxon_server_codedb_dir,
-                        raise_if_http_error=True,
-                    )
-                except Exception as err:
-                    raise UserError(
-                        self.env._(
-                            "Failed to validate the %(flavor)s XML file against "
-                            "the Saxon schematron server. Error: %(err)s",
-                            flavor=flavor,
-                            err=str(err),
-                        )
-                    ) from err
-        return flavor2xmlbytes
+            for move in self:
+                if move.is_sale_document() and move._is_destined_to_pa():
+                    move._check_saxon_schematron_validation()
+        return super().action_post()

@@ -5,7 +5,7 @@
 **Licence :** AGPL-3
 **Dépôt :** https://github.com/akretion/fr-einvoicing (branche 18.0)
 **Dépendances Odoo :** `account_tax_unece`, `uom_unece`, `account_payment_unece`, `base_vat`, `intrastat_base`
-**Dépendance Python :** `factur-x>=6.1` (cf. [lib-factur-x.md](./lib-factur-x.md))
+**Dépendance Python :** `factur-x>=6.4` (cf. [lib-factur-x.md](./lib-factur-x.md))
 **Incompatible avec :** `account_einvoice_generate` (`excludes`)
 
 ---
@@ -36,14 +36,15 @@ Le cœur du module : une série de méthodes `_prepare_btXX`/`_prepare_bgXX` (un
 
 ### Paramètres Saxon Server (`wizards/res_config_settings.py`)
 
-**C'est ce module qui expose les deux paramètres Saxon Server** documentés dans [saxon-server.md](./saxon-server.md), sur la page de configuration de la compta :
+**Ce module expose le paramètre Saxon Server** documenté dans [saxon-server.md](./saxon-server.md), sur la page de configuration de la compta :
 
 ```python
 saxon_server_url = fields.Char(config_parameter="en16931.saxon_server_url")
-saxon_server_codedb_dir = fields.Char(config_parameter="en16931.saxon_server_codedb_dir")
 ```
 
-Noms techniques exacts des `ir.config_parameter` : **`en16931.saxon_server_url`** et **`en16931.saxon_server_codedb_dir`**. Récupérés par `_get_specific_saxon_server_url()` / `_get_saxon_server_codedb_dir()` avant chaque appel à `generate_facturx_xml()`.
+Récupéré par `_get_specific_saxon_server_url()` avant chaque appel à `generate_facturx_xml()`.
+
+**Le fichier CodeDB n'est plus configuré via un champ dédié dans l'UI** depuis le commit [`03a3f0f`](https://github.com/akretion/fr-einvoicing/commit/03a3f0fcb139805d90ca43e2298a7419446223ba) (2026-07-14, requiert `factur-x>=6.4`) : Odoo sert désormais lui-même ce fichier via un controller HTTP public (`controllers/get_facturx_codedb.py`, route `GET /en16931/FACTUR-X_EXTENDED_codedb.xml`), et le communique au serveur Saxon via `en16931.saxon_server_codedb_base_url` (calculé par défaut depuis `web.base.url`, pas de config nécessaire). L'ancien `ir.config_parameter` `en16931.saxon_server_codedb_dir` (chemin filesystem local sur le serveur Saxon) existe toujours côté code (`_get_saxon_server_codedb_dir()`) et reste prioritaire s'il est renseigné, mais n'a plus de champ dans cette page — à définir depuis Réglages > Technique > Paramètres Système si besoin. Détail complet : [saxon-server.md](./saxon-server.md#point-dattention--le-fichier-codedb).
 
 ### Vérification de config (`models/res_company.py`, méthode `_en16931_checks`)
 
@@ -69,7 +70,7 @@ Le mode de paiement (bloc BG-16) n'est de toute façon **pas obligatoire** en EN
 
 ## Installation
 
-Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=6.1` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
+Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=6.4` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
 
 ## Sources
 

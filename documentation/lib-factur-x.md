@@ -63,6 +63,30 @@ find / -iname 'facturx' -maxdepth 8 -type d 2>/dev/null
 
 Si une copie existe dans `/home/odoo/.local/lib/python3.X/site-packages/facturx`, c'est elle qui est utilisée par Odoo, pas celle de `/usr/local/`. Correction : la supprimer (`pip3 uninstall --break-system-packages -y factur-x` **exécuté en tant qu'utilisateur `odoo`**, pas en root, pour cibler le bon emplacement) afin qu'Odoo retombe sur la version system-wide à jour.
 
+## Extraire le XML d'une facture Factur-X (PDF)
+
+Deux façons en ligne de commande :
+
+**1. Avec `pdfdetach` (poppler-utils, le plus rapide, pas besoin de Python) :**
+
+```bash
+pdfdetach -list facture.pdf      # liste les pièces jointes du PDF (le XML est en général "factur-x.xml")
+pdfdetach -saveall facture.pdf   # extrait toutes les pièces jointes dans le dossier courant
+```
+
+**2. Avec la lib `factur-x` elle-même (utilise la même logique d'extraction/autodétection qu'Odoo) :**
+
+```bash
+python3 -c "
+from facturx import get_xml_from_pdf
+xml_name, xml_bytes = get_xml_from_pdf('facture.pdf')
+open(xml_name, 'wb').write(xml_bytes)
+print(xml_name)
+"
+```
+
+`get_xml_from_pdf` (`facturx.py:646`) gère l'autodétection Factur-X/UBL/ZUGFeRD et renvoie le nom de fichier attendu + le contenu XML.
+
 ## Sources
 
 - [akretion.md](./akretion.md) — annonce de la réécriture Factur-X/UBL et passage à Saxon Server
