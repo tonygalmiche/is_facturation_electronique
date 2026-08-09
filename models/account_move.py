@@ -121,6 +121,7 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
         flavor2level = {"factur-x": "extended"}
+        flavor2invoice_format = {"factur-x": "facturx"}
         # generate_en16931_xml() exécute déjà un contrôle schématron une
         # première fois, mais en ignorant silencieusement les échecs de
         # communication (raise_if_http_error=False, câblé en dur dans la lib
@@ -129,16 +130,18 @@ class AccountMove(models.Model):
         # est injoignable (un échec de validation réel, c'est-à-dire un
         # fichier qui échoue vraiment au schématron, lève déjà une erreur de
         # son côté).
-        flavor2xmlbytes = self.generate_en16931_xml(flavor2level)
         check_schematron = self._get_saxon_check_schematron_option()
         saxon_server_url = self._get_specific_saxon_server_url()
         saxon_server_codedb_dir = self._get_saxon_server_codedb_dir()
-        for flavor, xml_bytes in flavor2xmlbytes.items():
+        for flavor, level in flavor2level.items():
+            xml_bytes, dummy_attachments = self.generate_en16931_xml(
+                flavor, level, flavor2invoice_format[flavor]
+            )
             try:
                 xml_check_schematron(
                     xml_bytes,
                     flavor=flavor,
-                    level=flavor2level[flavor],
+                    level=level,
                     check_option=check_schematron,
                     saxon_server_url=saxon_server_url,
                     saxon_server_codedb_dir=saxon_server_codedb_dir,
