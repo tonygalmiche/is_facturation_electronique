@@ -13,4 +13,20 @@
             </field>
         </field>
     </record>
+
+    <!--
+        Action serveur accessible depuis le menu "Action" de la liste et de la
+        fiche des taxes (Comptabilité > Configuration > Taxes). Nécessite une
+        sélection de taxes (ou l'ouverture d'une fiche). Logique de déduction
+        des codes UNECE : voir models/account_tax.py
+        (AccountTax.action_set_unece_codes).
+    -->
+    <record id="action_server_account_tax_set_unece_codes" model="ir.actions.server">
+        <field name="name">Renseigner les codes UNECE</field>
+        <field name="model_id" ref="account.model_account_tax"/>
+        <field name="binding_model_id" ref="account.model_account_tax"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_set_unece_codes()</field>
+    </record>
 </odoo>
