@@ -19,9 +19,10 @@ apt install python3-packaging
 apt install unicode
 
 su odoo
+pip install --break-system-packages unidecode
 pip install --break-system-packages factur-x
 pip show factur-x
-Version: 6.7
+Version: 6.8
 ```
 
 - À exécuter en tant que **root** (ex. `su -` ou session root) : le dossier `/usr/local/lib/python3.X/dist-packages/` appartient à `root`, l'utilisateur `odoo` n'a pas les droits d'écriture dessus.

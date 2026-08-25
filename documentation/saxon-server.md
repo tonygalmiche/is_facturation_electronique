@@ -203,6 +203,8 @@ Pour tester ce qui sera réellement utilisé par Odoo, envoyer une facture XML F
 Le dépôt `akretion/factur-x` fournit des factures XML d'exemple (fixtures de test), dont une au profil EXTENDED (celui utilisé par Odoo) : https://github.com/akretion/factur-x/tree/master/tests/fixtures/xml
 
 ```bash
+cd /opt/saxon-server/
+cp /home/odoo/.local/lib/python3.11/site-packages/facturx/xsd_and_schematron/facturx-extended/FACTUR-X_EXTENDED_codedb.xml /opt/saxon-server/
 wget https://raw.githubusercontent.com/akretion/factur-x/master/tests/fixtures/xml/factur-x-extended.xml
 wget https://raw.githubusercontent.com/akretion/factur-x/master/src/facturx/xsd_and_schematron/facturx-extended/Factur-X_1.09_EXTENDED.xsl
 

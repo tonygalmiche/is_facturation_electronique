@@ -76,6 +76,7 @@ apt install python3-packaging
 apt install unicode
 
 su odoo
+pip install --break-system-packages unidecode
 pip install --break-system-packages pyfrctc
 pip show pyfrctc
 Version: 0.15
