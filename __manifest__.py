@@ -49,5 +49,5 @@ InfoSaône - Module Odoo 18 pour Facturation électronique
     },
     'installable': True,
     'application': True,
-    'license': 'LGPL-3',
+    'license': 'AGPL-3',
 }
