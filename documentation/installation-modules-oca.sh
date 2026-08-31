@@ -132,6 +132,8 @@ echo "== Terminé =="
 echo "Modules installés dans : $DEST_DIR (cas $CAS)"
 echo
 echo "Étapes restantes (non gérées par ce script) :"
+echo "  - avoir la toute dernière version du code Odoo 16 (git pull), sous peine d'erreurs"
+echo "    liées à du code Odoo trop ancien (cf. backport-16.0.md)"
 echo "  - lib Python factur-x >= 6.3 (cf. lib-factur-x.md)"
 if [ "$CAS" -ge 2 ]; then
   echo "  - lib Python pyfrctc >= 0.12 (cf. lib-pyfrctc.md)"

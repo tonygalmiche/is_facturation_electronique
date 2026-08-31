@@ -187,8 +187,8 @@ cat /etc/ufw/user.rules # fichier brut des règles IPv4 persistées
 Le dépôt GitHub du projet fournit ses propres fichiers de test (utilisés pour ses tests unitaires), pratiques pour un premier test sans avoir besoin d'un vrai Factur-X : https://github.com/willemvlh/saxon-server/tree/master/src/test/resources/tv/mediagenix/xslt/transformer
 
 ```bash
-wget https://raw.githubusercontent.com/willemvlh/saxon-server/master/src/test/resources/tv/mediagenix/xslt/transformer/xml/dummy.xml
-wget https://raw.githubusercontent.com/willemvlh/saxon-server/master/src/test/resources/tv/mediagenix/xslt/transformer/xsl/test-1.xsl
+wget -4 https://raw.githubusercontent.com/willemvlh/saxon-server/master/src/test/resources/tv/mediagenix/xslt/transformer/xml/dummy.xml
+wget -4 https://raw.githubusercontent.com/willemvlh/saxon-server/master/src/test/resources/tv/mediagenix/xslt/transformer/xsl/test-1.xsl
 
 curl http://localhost:5000/transform -F xml=@dummy.xml -F xsl=@test-1.xsl
 # Réponse attendue : hello
@@ -204,9 +204,9 @@ Le dépôt `akretion/factur-x` fournit des factures XML d'exemple (fixtures de t
 
 ```bash
 cd /opt/saxon-server/
-cp /home/odoo/.local/lib/python3.11/site-packages/facturx/xsd_and_schematron/facturx-extended/FACTUR-X_EXTENDED_codedb.xml /opt/saxon-server/
-wget https://raw.githubusercontent.com/akretion/factur-x/master/tests/fixtures/xml/factur-x-extended.xml
-wget https://raw.githubusercontent.com/akretion/factur-x/master/src/facturx/xsd_and_schematron/facturx-extended/Factur-X_1.09_EXTENDED.xsl
+cp /home/odoo/.local/lib/python3.9/site-packages/facturx/xsd_and_schematron/facturx-extended/FACTUR-X_EXTENDED_codedb.xml /opt/saxon-server/
+wget -4 https://raw.githubusercontent.com/akretion/factur-x/master/tests/fixtures/xml/factur-x-extended.xml
+wget -4 https://raw.githubusercontent.com/akretion/factur-x/master/src/facturx/xsd_and_schematron/facturx-extended/Factur-X_1.09_EXTENDED.xsl
 
 # Retirer le BOM UTF-8 en tête du fichier XML (sinon la détection auto XML/JSON
 # de Saxon Server échoue, cf. piège 1 ci-dessous)
