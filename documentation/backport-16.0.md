@@ -63,3 +63,13 @@ Le commentaire du manifest de ce module (Cas 2, hérité tel quel de la branche 
 `l10n_fr_einvoicing` ne dépend en réalité **pas** de `l10n_fr_siret_account` — ce dernier ne sert qu'à un usage annexe (export SIRET pour l'affacturage, cf. [OCA/l10n-france#782](https://github.com/OCA/l10n-france/pull/782)) et n'a jamais été backporté en 16.0 (pas de PR de backport trouvée). Ce n'est donc pas une régression spécifique à la 16.0 : le même écart entre le commentaire du manifest et les dépendances réelles existe déjà sur la branche 18.0.
 
 **Conclusion :** le Cas 1 (actif) est prêt et à jour sur Odoo 16. Le Cas 2/3 (commentés, non activés) restent utilisables en théorie, avec la même réserve sur `l10n_fr_siret_account` que sur la branche 18.0 — pas de blocage propre à ce backport 16.0.
+
+### Correctif : dépendances qui diffèrent entre 16.0 et 18.0
+
+Le script a échoué à l'exécution (`account_payment_method_base introuvable`) : ce module n'existe pas en 16.0. En comparant les `depends` réels des modules entre 16.0 et 18.0, 3 différences propres à la 16.0 :
+
+- `account_payment_unece` dépend de **`account_payment_mode`** (OCA/bank-payment) au lieu de `account_payment_method_base`.
+- `account_invoice_en16931` dépend en plus de **`account_payment_partner`** (OCA/bank-payment).
+- `base_business_document_import` dépend en plus de **`pdf_helper`** (OCA/edi).
+
+Corrigé dans `__manifest__.py`, `installation-modules-oca.sh`, `last_update.sh` et `README.md`.

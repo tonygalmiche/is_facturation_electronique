@@ -35,9 +35,20 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 mkdir -p "$DEST_DIR"
 
 # module -> repo|branche (account_tax_unece est géré à part, cf. plus bas)
-# NB : l10n_fr_siret_account n'existe pas en branche 16.0 chez OCA/l10n-france
-# (module apparu à partir de la 18.0) : le cas 2 n'est donc pas installable
-# tel quel sur Odoo 16 tant que ce module n'est pas backporté.
+#
+# NB (dépendances spécifiques à la branche 16.0, différentes de la 18.0,
+# vérifiées sur les __manifest__.py réels de chaque module) :
+#   - account_payment_method_base n'existe pas en 16.0 (apparu en 18.0) ;
+#     account_payment_unece dépend en 16.0 de account_payment_mode
+#     (OCA/bank-payment) à la place.
+#   - account_invoice_en16931 dépend en plus, en 16.0 uniquement, de
+#     account_payment_partner (OCA/bank-payment).
+#   - base_business_document_import dépend en plus, en 16.0 uniquement, de
+#     pdf_helper (OCA/edi).
+#   - l10n_fr_siret_account n'existe pas en branche 16.0 chez OCA/l10n-france
+#     (module apparu à partir de la 18.0), mais n'est en réalité pas une
+#     dépendance requise par l10n_fr_einvoicing (cf. documentation/backport-16.0.md)
+#     : le cas 2 reste donc installable sans lui.
 declare -A MODULE_REPO=(
   [account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|16.0"
   [l10n_fr_account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|16.0"
@@ -47,20 +58,21 @@ declare -A MODULE_REPO=(
   [base_unece]="https://github.com/OCA/community-data-files.git|16.0"
   [intrastat_base]="https://github.com/OCA/intrastat-extrastat.git|16.0"
   [base_view_inheritance_extension]="https://github.com/OCA/server-tools.git|16.0"
-  [account_payment_method_base]="https://github.com/OCA/account-payment.git|16.0"
+  [account_payment_mode]="https://github.com/OCA/bank-payment.git|16.0"
+  [account_payment_partner]="https://github.com/OCA/bank-payment.git|16.0"
   [l10n_fr_einvoicing]="https://github.com/akretion/fr-einvoicing.git|16.0"
-  [l10n_fr_siret_account]="https://github.com/OCA/l10n-france.git|18.0"
   [l10n_fr_einvoicing_import]="https://github.com/akretion/fr-einvoicing.git|16.0"
   [account_invoice_import]="https://github.com/OCA/edi.git|16.0"
   [account_invoice_import_facturx]="https://github.com/OCA/edi.git|16.0"
   [base_facturx]="https://github.com/OCA/edi.git|16.0"
   [base_business_document_import]="https://github.com/OCA/edi.git|16.0"
+  [pdf_helper]="https://github.com/OCA/edi.git|16.0"
 )
 
 # Modules propres à chaque cas (cf. installation.md)
-CASE1_MODULES=(account_invoice_en16931 l10n_fr_account_invoice_en16931 l10n_fr_siret uom_unece account_payment_unece base_unece intrastat_base base_view_inheritance_extension account_payment_method_base)
-CASE2_MODULES=(l10n_fr_einvoicing l10n_fr_siret_account)
-CASE3_MODULES=(l10n_fr_einvoicing_import account_invoice_import account_invoice_import_facturx base_facturx base_business_document_import)
+CASE1_MODULES=(account_invoice_en16931 l10n_fr_account_invoice_en16931 l10n_fr_siret uom_unece account_payment_unece base_unece intrastat_base base_view_inheritance_extension account_payment_mode account_payment_partner)
+CASE2_MODULES=(l10n_fr_einvoicing)
+CASE3_MODULES=(l10n_fr_einvoicing_import account_invoice_import account_invoice_import_facturx base_facturx base_business_document_import pdf_helper)
 
 MODULES=("${CASE1_MODULES[@]}")
 [ "$CAS" -ge 2 ] && MODULES+=("${CASE2_MODULES[@]}")

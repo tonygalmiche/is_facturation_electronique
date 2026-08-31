@@ -24,7 +24,8 @@ InfoSaône - Module Odoo 16 pour Facturation électronique
         'account_payment_unece',            # OCA - codes UNECE moyens de paiement
         'intrastat_base',                   # OCA - socle des déclarations Intrastat
         'base_view_inheritance_extension',  # OCA - dépendance technique (héritage de vues), requis par l10n_fr_siret
-        'account_payment_method_base',      # OCA - vues account.payment.method, requis par account_payment_unece
+        'account_payment_mode',             # OCA/bank-payment - requis par account_payment_unece sur Odoo 16 (account_payment_method_base n'existe qu'à partir de la 18.0)
+        'account_payment_partner',          # OCA/bank-payment - requis par account_invoice_en16931 sur Odoo 16 uniquement (absent des dépendances sur la 18.0)
 
         # Cas 2 : cas 1 + envoi de la facture sur la PA
         # 'l10n_fr_einvoicing',               # Akretion - facturation électronique française (CTC)
