@@ -2,7 +2,7 @@
 
 from facturx import xml_check_schematron
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 
 
@@ -149,7 +149,7 @@ class AccountMove(models.Model):
                 )
             except Exception as err:
                 raise UserError(
-                    self.env._(
+                    _(
                         "Failed to validate the %(flavor)s XML file against "
                         "the Saxon schematron server. Error: %(err)s",
                         flavor=flavor,
@@ -167,8 +167,8 @@ class AccountMove(models.Model):
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": self.env._("Validation Saxon réussie"),
-                "message": self.env._(
+                "title": _("Validation Saxon réussie"),
+                "message": _(
                     "Le fichier XML Factur-X a passé avec succès la "
                     "validation Schematron sur le serveur Saxon."
                 ),

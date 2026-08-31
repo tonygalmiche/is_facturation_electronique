@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 
 
@@ -21,7 +21,7 @@ class ResPartner(models.Model):
             siren_value = partner.siren or False
         if not siren_value and raise_if_none:
             raise UserError(
-                self.env._(
+                _(
                     "SIREN is not set on partner '%(partner)s'.",
                     partner=(self.parent_id or self).display_name,
                 )

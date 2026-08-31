@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 
 # Catégories UNECE (UNCL5305) définies par le module OCA account_tax_unece
@@ -49,7 +49,7 @@ class AccountTax(models.Model):
     def action_set_unece_codes(self):
         if not self:
             raise UserError(
-                self.env._("Sélectionnez au moins une taxe avant de lancer cette action.")
+                _("Sélectionnez au moins une taxe avant de lancer cette action.")
             )
         vat_type = self.env.ref("account_tax_unece.tax_type_vat")
         updated = 0
@@ -74,13 +74,13 @@ class AccountTax(models.Model):
                 tax.write(vals)
                 updated += 1
 
-        message = self.env._(
+        message = _(
             "%(updated)d taxe(s) mise(s) à jour, %(already_set)d déjà renseignée(s).",
             updated=updated,
             already_set=already_set,
         )
         if to_review:
-            message += "\n" + self.env._(
+            message += "\n" + _(
                 "A vérifier manuellement (catégorie et motif d'exonération VATEX) : %(taxes)s",
                 taxes=", ".join(to_review),
             )
@@ -88,7 +88,7 @@ class AccountTax(models.Model):
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": self.env._("Codes UNECE des taxes"),
+                "title": _("Codes UNECE des taxes"),
                 "message": message,
                 "sticky": bool(to_review),
                 "type": "success",

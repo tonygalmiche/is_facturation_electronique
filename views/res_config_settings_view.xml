@@ -4,14 +4,22 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="account_invoice_en16931.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <setting id="saxon_server_url" position="after">
-                <setting
+            <div id="saxon_server_url" position="after">
+                <div
+                    class="col-12 col-lg-6 o_setting_box"
                     id="is_force_saxon_validation"
-                    help="Si activé, la validation (bouton 'Confirmer') d'une facture client est bloquée si le serveur Saxon est injoignable ou si le fichier XML Factur-X échoue à la validation schematron. Si désactivé (par défaut), un échec ou une indisponibilité du serveur Saxon est seulement enregistré dans les logs et n'empêche pas de valider la facture."
                 >
-                    <field name="is_force_saxon_validation" />
-                </setting>
-            </setting>
+                    <div class="o_setting_left_pane">
+                        <field name="is_force_saxon_validation" />
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="is_force_saxon_validation" />
+                        <div class="text-muted">
+                            Si activé, la validation (bouton 'Confirmer') d'une facture client est bloquée si le serveur Saxon est injoignable ou si le fichier XML Factur-X échoue à la validation schematron. Si désactivé (par défaut), un échec ou une indisponibilité du serveur Saxon est seulement enregistré dans les logs et n'empêche pas de valider la facture.
+                        </div>
+                    </div>
+                </div>
+            </div>
         </field>
     </record>
 </odoo>

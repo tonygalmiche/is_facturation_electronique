@@ -10,7 +10,7 @@
 #   cas = 1 : génération d'une facture Factur-X/EN16931, sans envoi sur la PA
 #   cas = 2 : cas 1 + envoi de la facture sur la PA
 #   cas = 3 : cas 2 + réception des factures fournisseurs depuis la PA
-# Par défaut, dossier_destination = /media/sf_dev_odoo/18.0/facturation-electronique
+# Par défaut, dossier_destination = /media/sf_dev_odoo/16.0/facturation-electronique
 
 set -euo pipefail
 
@@ -28,30 +28,33 @@ case "$CAS" in
   *) usage ;;
 esac
 
-DEST_DIR="${2:-/media/sf_dev_odoo/18.0/facturation-electronique}"
+DEST_DIR="${2:-/media/sf_dev_odoo/16.0/facturation-electronique}"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 mkdir -p "$DEST_DIR"
 
 # module -> repo|branche (account_tax_unece est géré à part, cf. plus bas)
+# NB : l10n_fr_siret_account n'existe pas en branche 16.0 chez OCA/l10n-france
+# (module apparu à partir de la 18.0) : le cas 2 n'est donc pas installable
+# tel quel sur Odoo 16 tant que ce module n'est pas backporté.
 declare -A MODULE_REPO=(
-  [account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|18.0"
-  [l10n_fr_account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|18.0"
-  [l10n_fr_siret]="https://github.com/OCA/l10n-france.git|18.0"
-  [uom_unece]="https://github.com/OCA/community-data-files.git|18.0"
-  [account_payment_unece]="https://github.com/OCA/community-data-files.git|18.0"
-  [base_unece]="https://github.com/OCA/community-data-files.git|18.0"
-  [intrastat_base]="https://github.com/OCA/intrastat-extrastat.git|18.0"
-  [base_view_inheritance_extension]="https://github.com/OCA/server-tools.git|18.0"
-  [account_payment_method_base]="https://github.com/OCA/account-payment.git|18.0"
-  [l10n_fr_einvoicing]="https://github.com/akretion/fr-einvoicing.git|18.0"
+  [account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|16.0"
+  [l10n_fr_account_invoice_en16931]="https://github.com/akretion/fr-einvoicing.git|16.0"
+  [l10n_fr_siret]="https://github.com/OCA/l10n-france.git|16.0"
+  [uom_unece]="https://github.com/OCA/community-data-files.git|16.0"
+  [account_payment_unece]="https://github.com/OCA/community-data-files.git|16.0"
+  [base_unece]="https://github.com/OCA/community-data-files.git|16.0"
+  [intrastat_base]="https://github.com/OCA/intrastat-extrastat.git|16.0"
+  [base_view_inheritance_extension]="https://github.com/OCA/server-tools.git|16.0"
+  [account_payment_method_base]="https://github.com/OCA/account-payment.git|16.0"
+  [l10n_fr_einvoicing]="https://github.com/akretion/fr-einvoicing.git|16.0"
   [l10n_fr_siret_account]="https://github.com/OCA/l10n-france.git|18.0"
-  [l10n_fr_einvoicing_import]="https://github.com/akretion/fr-einvoicing.git|18.0"
-  [account_invoice_import]="https://github.com/OCA/edi.git|18.0"
-  [account_invoice_import_facturx]="https://github.com/OCA/edi.git|18.0"
-  [base_facturx]="https://github.com/OCA/edi.git|18.0"
-  [base_business_document_import]="https://github.com/OCA/edi.git|18.0"
+  [l10n_fr_einvoicing_import]="https://github.com/akretion/fr-einvoicing.git|16.0"
+  [account_invoice_import]="https://github.com/OCA/edi.git|16.0"
+  [account_invoice_import_facturx]="https://github.com/OCA/edi.git|16.0"
+  [base_facturx]="https://github.com/OCA/edi.git|16.0"
+  [base_business_document_import]="https://github.com/OCA/edi.git|16.0"
 )
 
 # Modules propres à chaque cas (cf. installation.md)
@@ -105,7 +108,7 @@ if [ -d "$DEST_DIR/account_tax_unece" ]; then
   echo "  [skip] account_tax_unece existe déjà dans $DEST_DIR, non écrasé"
 else
   clone_dir="$TMP_DIR/community-data-files-vatex"
-  git clone -b 18-account_tax_unece-vatex --depth 1 \
+  git clone -b 16-backport-account_tax_unece-vatex --depth 1 \
     https://github.com/akretion/community-data-files.git "$clone_dir"
   mv "$clone_dir/account_tax_unece" "$DEST_DIR/"
   rm -rf "$clone_dir"
