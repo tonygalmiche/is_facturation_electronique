@@ -17,10 +17,12 @@ Sur Debian, `pip install` direct échoue avec `externally-managed-environment` (
 apt install python3-pip
 apt install python3-packaging
 apt install unicode
+# dépendance de base_view_inheritance_extension
+apt install python3-astor
 
 su odoo
-pip install --break-system-packages unidecode
-pip install --break-system-packages factur-x
+pip install unidecode
+pip install factur-x
 pip show factur-x
 Version: 6.8
 ```

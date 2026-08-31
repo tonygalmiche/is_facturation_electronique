@@ -15,7 +15,7 @@
                     <div class="o_setting_right_pane">
                         <label for="is_force_saxon_validation" />
                         <div class="text-muted">
-                            Si activé, la validation (bouton 'Confirmer') d'une facture client est bloquée si le serveur Saxon est injoignable ou si le fichier XML Factur-X échoue à la validation schematron. Si désactivé (par défaut), un échec ou une indisponibilité du serveur Saxon est seulement enregistré dans les logs et n'empêche pas de valider la facture.
+                            À ne pas confondre avec l'option "Erreur bloquante si la validation Saxon échoue" ci-dessus, qui ne s'applique qu'à la génération du XML/PDF Factur-X (impression, envoi par mail...). Cette option-ci s'applique plus tôt : si activée, le bouton 'Confirmer' d'une facture client est bloqué si le serveur Saxon est injoignable ou si le fichier XML Factur-X échoue à la validation schematron, avant même toute impression ou tout envoi. Si désactivée (par défaut), un échec ou une indisponibilité du serveur Saxon à la confirmation est seulement enregistré dans les logs et n'empêche pas de valider la facture.
                         </div>
                     </div>
                 </div>
