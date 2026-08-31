@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 {
-    'name'     : 'InfoSaône - Module Odoo 18 pour Facturation électronique',
-    'version'  : '18.0.0.1',
+    'name'     : 'InfoSaône - Module Odoo 16 pour Facturation électronique',
+    'version'  : '16.0.0.1',
     'author'   : 'InfoSaône',
     'category' : 'InfoSaône',
     'description': """
-InfoSaône - Module Odoo 18 pour Facturation électronique
+InfoSaône - Module Odoo 16 pour Facturation électronique
 ========================================================
 """,
     'maintainer' : 'InfoSaône',
