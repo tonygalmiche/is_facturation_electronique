@@ -77,3 +77,7 @@ Corrigé dans `__manifest__.py`, `installation-modules-oca.sh`, `last_update.sh`
 ### Code Odoo 16 trop ancien
 
 Rencontré aussi : l'action serveur "Renseigner les codes UNECE" (`account_tax.py`) plantait côté JS avec `KeyNotFoundError: Cannot find soft_reload in this registry!` — ce tag client existe pourtant bien dans le code source d'Odoo 16 (`addons/web/static/src/webclient/actions/client_actions.js`), mais pas dans les assets JS compilés de cette instance, preuve d'un commit Odoo trop ancien dans la branche 16.0. Résolu par une mise à jour du code Odoo 16 (`git pull`), sans toucher au module. Confirme l'avertissement d'Alexis de Lattre : "assurez-vous aussi que le code odoo que vous utilisez n'est pas trop vieux".
+
+### Bug amont Python 3.9 : `isinstance(x, int | float)`
+
+`account_invoice_en16931/models/account_move_line.py` casse sur Python 3.9 (`int | float` nécessite 3.10+) — signalé sur [akretion/fr-einvoicing#74](https://github.com/akretion/fr-einvoicing/issues/74), patch temporaire appliqué en attendant dans la copie locale du module (hors dépôt `is_facturation_electronique`).
