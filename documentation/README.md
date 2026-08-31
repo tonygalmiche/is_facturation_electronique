@@ -129,4 +129,5 @@ l10n_fr_pdp (Odoo SA, cf. l10n_fr_pdp.md)
 ## Documents transverses
 
 - [akretion.md](./akretion.md) — annonce et contexte de la réécriture Factur-X/UBL par Alexis de Lattre (versions des libs, choix d'architecture)
+- [backport-16.0.md](./backport-16.0.md) — annonce de la disponibilité des modules pour Odoo 16 et vérification des dépôts/dépendances pour ce module
 - [super-pdp.md](./super-pdp.md) — plateforme PDP utilisée pour les tests
