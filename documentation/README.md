@@ -9,11 +9,10 @@ Les modules sans lien (texte simple) sont des modules natifs d'Odoo non document
 
 ## Installation rapide
 
-Le script [`installation-modules-oca.sh`](./installation-modules-oca.sh) automatise le téléchargement et la mise en place des modules OCA/Akretion de la stack communautaire, selon le cas d'installation souhaité (cf. [installation.md](./installation.md)) :
+Le script [`installation-modules-facturation-electronique.sh`](https://github.com/tonygalmiche/scripts-github/blob/main/installation-modules-facturation-electronique.sh) du dépôt [scripts-github](https://github.com/tonygalmiche/scripts-github) automatise le téléchargement et la mise en place des modules OCA/Akretion de la stack communautaire, selon le cas d'installation souhaité (cf. [installation.md](./installation.md)). Les dossiers des clones et des liens vers les modules sont définis dans son `config.sh` :
 
 ```bash
-./installation-modules-oca.sh <cas:1|2|3> [dossier_destination]
-# par défaut : /media/sf_dev_odoo/18.0/facturation-electronique
+installation-modules-facturation-electronique.sh <cas:1|2|3>
 #   1 : génération Factur-X/EN16931, sans envoi sur la PA (section 1 ci-dessous)
 #   2 : cas 1 + envoi de la facture sur la PA
 #   3 : cas 2 + réception des factures fournisseurs depuis la PA (section 2 ci-dessous)
@@ -61,7 +60,7 @@ Saxon Server (cf. saxon-server.md) — appelé en HTTP par les libs pyfrctc ET f
 
 ## 2. Import des factures fournisseur (Super PDP)
 
-Complète la stack 1 : sans ces modules, `l10n_fr_einvoicing` ne fait que **recevoir** les flux mais ne crée jamais la facture fournisseur correspondante (cf. [import-depuis-super-pdp.md](./import-depuis-super-pdp.md) pour le détail des incidents rencontrés). Installation : `./installation-modules-oca.sh 3` (cf. ci-dessus).
+Complète la stack 1 : sans ces modules, `l10n_fr_einvoicing` ne fait que **recevoir** les flux mais ne crée jamais la facture fournisseur correspondante (cf. [import-depuis-super-pdp.md](./import-depuis-super-pdp.md) pour le détail des incidents rencontrés). Installation : `installation-modules-facturation-electronique.sh 3` (cf. ci-dessus).
 
 ```
 l10n_fr_einvoicing_import                            (Akretion, cf. l10n_fr_einvoicing_import.md)

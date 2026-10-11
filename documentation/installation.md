@@ -70,7 +70,7 @@ Modules à ajouter en plus des deux parties précédentes :
 
 ## Script d'installation
 
-[installation-modules-oca.sh](installation-modules-oca.sh)
+[installation-modules-facturation-electronique.sh](https://github.com/tonygalmiche/scripts-github/blob/main/installation-modules-facturation-electronique.sh), dans le dépôt [scripts-github](https://github.com/tonygalmiche/scripts-github)
 
 ## Dernière mise à jour des modules/libs sur GitHub
 
