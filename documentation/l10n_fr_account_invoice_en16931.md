@@ -55,7 +55,7 @@ mv fr-einvoicing/account_invoice_en16931 /media/sf_dev_odoo/18.0/facturation-ele
 rm -rf fr-einvoicing
 ```
 
-Ne pas oublier la dépendance Python `factur-x>=6.1` requise par `account_invoice_en16931` (cf. [lib-factur-x.md](./lib-factur-x.md)) — sans elle, l'installation du module échoue.
+Ne pas oublier la dépendance Python `factur-x>=7.5` requise par `account_invoice_en16931` (cf. [lib-factur-x.md](./lib-factur-x.md)) — sans elle, l'installation du module échoue.
 
 ## Chaîne de dépendances complète
 

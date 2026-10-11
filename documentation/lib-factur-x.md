@@ -1,7 +1,7 @@
 # Lib Python `factur-x`
 
 **Paquet PyPI :** `factur-x`
-**Version utilisée par la réforme (cf. [akretion.md](./akretion.md)) :** 6.1
+**Version minimale requise :** 7.5 (`account_invoice_en16931`, `l10n_fr_einvoicing_import`) — 6.1 lors de la première release (cf. [akretion.md](./akretion.md))
 **Dépôt :** https://github.com/akretion/factur-x
 **Rôle :** génération et validation des factures Factur-X / UBL / CII (CTC), utilisée par les modules `l10n_fr_einvoicing` / `account_invoice_en16931`. Depuis la réécriture (v6+), ne dépend plus de `saxonche` : la validation Schematron passe par [Saxon Server](./saxon-server.md), un service HTTP externe.
 

@@ -4,7 +4,7 @@
 **Version :** 18.0.1.0.1  
 **Licence :** AGPL-3  
 **Dépôt :** https://github.com/akretion/fr-einvoicing (branche 18.0)  
-**Dépendances :** `l10n_fr_siret_account`, `l10n_fr_account_invoice_en16931`, `pyfrctc >= 0.7` (lib Python)
+**Dépendances :** `l10n_fr_siret_account`, `l10n_fr_account_invoice_en16931`, `pyfrctc >= 0.23` (lib Python)
 
 ---
 
@@ -110,7 +110,7 @@ Dépendances à installer au préalable :
 
 - Module Odoo [l10n_fr_siret_account.md](./l10n_fr_siret_account.md) (et sa dépendance [l10n_fr_siret.md](./l10n_fr_siret.md))
 - Module Odoo [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation) (même dépôt, à cloner en même temps que ci-dessus)
-- Lib Python `pyfrctc>=0.7` (cf. [lib-pyfrctc.md](./lib-pyfrctc.md))
+- Lib Python `pyfrctc>=0.23` (cf. [lib-pyfrctc.md](./lib-pyfrctc.md))
 - [Saxon Server](./saxon-server.md), appelé par `pyfrctc` pour la validation Schematron des fichiers CDAR
 - [base_business_document_import.md](./base_business_document_import.md), requis pour le matching partenaire à l'import des factures fournisseur Super PDP (`_match_partner_from_event`)
 

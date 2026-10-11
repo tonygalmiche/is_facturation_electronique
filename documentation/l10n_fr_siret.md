@@ -2,7 +2,7 @@
 
 **Source :** OCA / l10n-france  
 **Version :** 18.0.1.3.0  
-**Dépendances :** `l10n_fr`, `base_view_inheritance_extension`, `python-stdnum >= 1.18`
+**Dépendances :** `l10n_fr`, `base_view_inheritance_extension`, `python-stdnum`
 
 ---
 

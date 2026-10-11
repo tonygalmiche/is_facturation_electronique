@@ -47,8 +47,8 @@ l10n_fr_einvoicing                                   (Akretion, cf. l10n_fr_einv
 │   │   └── intrastat_base                           (OCA/intrastat-extrastat, cf. intrastat_base.md)
 │   │       └── base_vat                             (cf. base_vat.md)
 │   └── l10n_fr_siret                                (cf. l10n_fr_siret.md)
-├── lib Python `pyfrctc` >= 0.7                      (cf. lib-pyfrctc.md)
-└── lib Python `factur-x` >= 6.1                     dépendance de account_invoice_en16931 (cf. lib-factur-x.md)
+├── lib Python `pyfrctc` >= 0.23                     (cf. lib-pyfrctc.md)
+└── lib Python `factur-x` >= 7.5                     dépendance de account_invoice_en16931 (cf. lib-factur-x.md)
 
 Composant externe obligatoire (pas un module Odoo) :
 Saxon Server (cf. saxon-server.md) — appelé en HTTP par les libs pyfrctc ET factur-x

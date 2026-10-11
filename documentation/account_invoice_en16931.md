@@ -5,7 +5,7 @@
 **Licence :** AGPL-3
 **Dépôt :** https://github.com/akretion/fr-einvoicing (branche 18.0)
 **Dépendances Odoo :** `account_tax_unece`, `uom_unece`, `account_payment_unece`, `base_vat`, `intrastat_base`
-**Dépendance Python :** `factur-x>=6.4` (cf. [lib-factur-x.md](./lib-factur-x.md))
+**Dépendance Python :** `factur-x>=7.5` (cf. [lib-factur-x.md](./lib-factur-x.md))
 **Incompatible avec :** `account_einvoice_generate` (`excludes`)
 
 ---
@@ -70,7 +70,7 @@ Le mode de paiement (bloc BG-16) n'est de toute façon **pas obligatoire** en EN
 
 ## Installation
 
-Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=6.4` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
+Ce module vit dans le même dépôt `akretion/fr-einvoicing` que `l10n_fr_account_invoice_en16931` (sa dépendance directe côté France) : même clone, mêmes commandes — cf. [l10n_fr_account_invoice_en16931.md](./l10n_fr_account_invoice_en16931.md#installation). Ne pas oublier la dépendance Python `factur-x>=7.5` (cf. [lib-factur-x.md](./lib-factur-x.md)), sans laquelle l'installation du module échoue.
 
 ## Sources
 

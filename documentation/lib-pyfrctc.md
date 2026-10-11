@@ -3,7 +3,7 @@
 **Paquet PyPI :** `pyfrctc`
 **Auteur :** Alexis de Lattre (Akretion)
 **Licence :** LGPL-2.1+
-**Version utilisée par la réforme (cf. [akretion.md](./akretion.md)) :** 0.13
+**Version minimale requise :** 0.23 (`l10n_fr_einvoicing`) — 0.13 lors de la première release (cf. [akretion.md](./akretion.md))
 **Dépôt :** https://github.com/akretion/pyfrctc
 **Statut :** Beta (noms de méthodes et arguments peuvent encore changer)
 **Rôle :** implémente le standard **AFNOR XP Z12-013** (API des Plateformes Agréées / PDP) : authentification OAuth2, requêtes d'annuaire (SIREN/SIRET), envoi/recherche de flux, génération des fichiers CDAR de cycle de vie. Utilisée en priorité par le module communautaire Odoo `l10n_fr_einvoicing`, mais réutilisable par n'importe quel logiciel.

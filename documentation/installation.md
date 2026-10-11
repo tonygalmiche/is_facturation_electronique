@@ -18,6 +18,7 @@ Chaque cas ajoute des modules à celui qui le précède.
 | [account_invoice_en16931.md](account_invoice_en16931.md) | Génère et valide le Factur-X/UBL EN16931 |
 | [l10n_fr_account_invoice_en16931.md](l10n_fr_account_invoice_en16931.md) | Surcouche France (mentions légales FR) |
 | [l10n_fr_siret.md](l10n_fr_siret.md) | SIREN/NIC/SIRET sur les partenaires |
+| [l10n_fr_siret_account.md](l10n_fr_siret_account.md) | Lien SIRET / écritures comptables, requis par `l10n_fr_account_invoice_en16931` |
 | [account_tax_unece.md](account_tax_unece.md) | Codes UNECE des taxes + motifs VATEX |
 | [uom_unece.md](uom_unece.md) | Codes UNECE des unités de mesure |
 | [account_payment_unece.md](account_payment_unece.md) | Codes UNECE des moyens de paiement |
@@ -29,7 +30,8 @@ Chaque cas ajoute des modules à celui qui le précède.
 
 ### Dépendances techniques hors modules Odoo
 
-- Lib Python `factur-x>=6.3` — [lib-factur-x.md](lib-factur-x.md)
+- Lib Python `factur-x>=7.5` — [lib-factur-x.md](lib-factur-x.md)
+- Lib Python `python-stdnum`, requise par `l10n_fr_siret`
 - Saxon Server pour la validation Schematron EN16931 — [saxon-server.md](saxon-server.md)
 
 ### Validation Saxon obligatoire
@@ -50,11 +52,10 @@ Modules à ajouter en plus de la partie précédente :
 | Module | Rôle |
 |---|---|
 | [l10n_fr_einvoicing.md](l10n_fr_einvoicing.md) | Flux CTC réel : envoi/réception via PPF/PDP |
-| [l10n_fr_siret_account.md](l10n_fr_siret_account.md) | Lien SIRET / écritures comptables |
 
 ### Dépendances techniques hors modules Odoo
 
-- Lib Python `pyfrctc>=0.12` — [lib-pyfrctc.md](lib-pyfrctc.md)
+- Lib Python `pyfrctc>=0.23` — [lib-pyfrctc.md](lib-pyfrctc.md)
 
 ## Cas : générer une facture, l'envoyer sur la PA et recevoir les factures fournisseurs de la PA
 
@@ -63,6 +64,7 @@ Modules à ajouter en plus des deux parties précédentes :
 | Module | Rôle |
 |---|---|
 | [l10n_fr_einvoicing_import.md](l10n_fr_einvoicing_import.md) | Import réel des factures fournisseur reçues via PA |
+| `l10n_fr_account_invoice_import` | Requis par `l10n_fr_einvoicing_import` depuis le 10/10/2026 ; PR [OCA/l10n-france#810](https://github.com/OCA/l10n-france/pull/810) non fusionnée, pris sur la branche `18-add-l10n_fr_account_invoice_import` d'`akretion/l10n-france` |
 | [account_invoice_import.md](account_invoice_import.md) | Import générique de factures fournisseur PDF/XML |
 | [account_invoice_import_facturx.md](account_invoice_import_facturx.md) | Parsing du XML CII/Factur-X d'une facture fournisseur |
 | [base_facturx.md](base_facturx.md) | Socle technique requis par `account_invoice_import_facturx` |
