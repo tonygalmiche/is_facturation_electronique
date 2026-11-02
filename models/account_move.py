@@ -134,7 +134,7 @@ class AccountMove(models.Model):
         saxon_server_url = self._get_specific_saxon_server_url()
         saxon_server_codedb_dir = self._get_saxon_server_codedb_dir()
         for flavor, level in flavor2level.items():
-            xml_bytes, dummy_attachments = self.generate_en16931_xml(
+            xml_bytes, dummy_data_dict, dummy_attachments = self.generate_en16931_xml(
                 flavor, level, flavor2invoice_format[flavor]
             )
             try:
